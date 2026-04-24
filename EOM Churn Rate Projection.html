@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Analitik Churn 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-root: #0c0f14;
+            --bg-sidebar: #10141b;
+            --bg-main: #141821;
+            --bg-card: #1a1f2b;
+            --bg-card-hover: #1f2535;
+            --bg-input: #1e2430;
+            --border: #262d3d;
+            --border-light: #2a3248;
+            --text-primary: #e8ecf4;
+            --text-secondary: #8892a8;
+            --text-muted: #5a6478;
+            --accent: #00d4aa;
+            --accent-dim: rgba(0, 212, 170, 0.12);
+            --accent-glow: rgba(0, 212, 170, 0.25);
+            --red: #ff5c72;
+            --red-dim: rgba(255, 92, 114, 0.12);
+            --amber: #ffb347;
+            --amber-dim: rgba(255, 179, 71, 0.12);
+            --blue: #4facfe;
+            --blue-dim: rgba(79, 172, 254, 0.12);
+            --green: #00d4aa;
+            --green-dim: rgba(0, 212, 170, 0.12);
+            --radius: 10px;
+            --radius-lg: 14px;
+            --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg-root); color: var(--text-primary); display: flex; min-height: 100vh; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        .sidebar { width: 250px; min-height: 100vh; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; }
+        .sidebar-brand { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+        .sidebar-brand .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #00a885); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #0c0f14; font-weight: 700; box-shadow: 0 0 20px var(--accent-glow); }
+        .sidebar-brand h1 { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+        .sidebar-brand span { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+        .sidebar-nav { padding: 16px 12px; flex: 1; }
+        .nav-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); padding: 8px 12px 6px; margin-top: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 8px; font-size: 13.5px; font-weight: 400; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+        .nav-item i { width: 18px; text-align: center; font-size: 14px; }
+        .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+        .nav-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 500; }
+        .nav-item.active i { color: var(--accent); }
+        .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-muted); }
+
+        .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .topbar { padding: 18px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-main); position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); }
+        .topbar-left h2 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; color: var(--text-primary); }
+        .topbar-left p { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .topbar-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,212,170,0.15); }
+        .topbar-time { font-size: 12px; color: var(--text-muted); }
+        .content { padding: 28px 32px 40px; flex: 1; }
+
+        .controls-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+        .ctrl-group { display: flex; align-items: center; gap: 8px; }
+        .ctrl-group label { font-size: 12px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; }
+        .ctrl-group select, .ctrl-group input { background: var(--bg-input); border: 1px solid var(--border-light); color: var(--text-primary); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.2s; min-width: 140px; }
+        .ctrl-group select:focus, .ctrl-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+        .ctrl-separator { width: 1px; height: 28px; background: var(--border); }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+        .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; position: relative; overflow: hidden; transition: all 0.25s; }
+        .kpi-card:hover { border-color: var(--border-light); background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: var(--shadow-card); }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+        .kpi-card[data-color="blue"]::before { background: linear-gradient(90deg, var(--blue), transparent); }
+        .kpi-card[data-color="red"]::before { background: linear-gradient(90deg, var(--red), transparent); }
+        .kpi-card[data-color="amber"]::before { background: linear-gradient(90deg, var(--amber), transparent); }
+        .kpi-card[data-color="green"]::before { background: linear-gradient(90deg, var(--green), transparent); }
+        .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .kpi-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); line-height: 1.3; }
+        .kpi-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .kpi-icon.blue { background: var(--blue-dim); color: var(--blue); }
+        .kpi-icon.red { background: var(--red-dim); color: var(--red); }
+        .kpi-icon.amber { background: var(--amber-dim); color: var(--amber); }
+        .kpi-icon.green { background: var(--green-dim); color: var(--green); }
+        .kpi-value { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+        .kpi-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
+        .kpi-sub .up { color: var(--accent); }
+        .kpi-sub .down { color: var(--red); }
+
+        .chart-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 28px; }
+        .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .chart-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .chart-legend { display: flex; gap: 16px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-secondary); }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .legend-dot.dashed { background: transparent !important; border: 2px dashed; width: 10px; height: 0; border-radius: 0; }
+        .chart-container { position: relative; height: 360px; width: 100%; }
+
+        .table-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+        .table-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .table-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .table-count { font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 4px 10px; border-radius: 12px; border: 1px solid var(--border); }
+        .table-wrapper { max-height: 420px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        thead th { background: var(--bg-input); color: var(--text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 20px; text-align: left; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+        thead th:first-child { padding-left: 24px; }
+        thead th:last-child { text-align: right; padding-right: 24px; }
+        tbody td { padding: 11px 20px; border-bottom: 1px solid rgba(38,45,61,0.5); color: var(--text-primary); font-variant-numeric: tabular-nums; }
+        tbody td:first-child { padding-left: 24px; }
+        tbody td:last-child { text-align: right; padding-right: 24px; font-weight: 600; }
+        tbody tr:hover { background: var(--bg-card-hover); }
+        tbody tr:last-child td { border-bottom: none; }
+        .td-date { font-weight: 500; }
+        .td-num { font-family: 'Space Grotesk', sans-serif; font-weight: 500; }
+        
+        .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+        .status-pill.actual { background: var(--blue-dim); color: var(--blue); }
+        .status-pill.interpolated { background: rgba(138,150,180,0.12); color: var(--text-secondary); }
+        .status-pill.projection { background: var(--amber-dim); color: var(--amber); }
+        
+        /* Badge Interpolasi Spesifik untuk EOP */
+        .badge-intp { font-size: 9px; background: rgba(138,150,180,0.15); color: var(--text-secondary); padding: 2px 5px; border-radius: 4px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.5px; font-family: 'DM Sans', sans-serif; font-weight: 600;}
+        
+        .rate-cell { font-family: 'Space Grotesk', sans-serif; }
+        .rate-good { color: var(--accent); }
+        .rate-warn { color: var(--amber); }
+        .rate-bad { color: var(--red); }
+
+        @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 860px) { .sidebar { display: none; } .content { padding: 20px 16px; } .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; } .controls-bar { flex-direction: column; align-items: stretch; } .ctrl-separator { display: none; } }
+        @media (max-width: 540px) { .kpi-grid { grid-template-columns: 1fr; } }
+        
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .kpi-card, .chart-section, .table-section { animation: fadeUp 0.45s ease both; }
+        .kpi-card:nth-child(2) { animation-delay: 0.06s; }
+        .kpi-card:nth-child(3) { animation-delay: 0.12s; }
+        .kpi-card:nth-child(4) { animation-delay: 0.18s; }
+        .chart-section { animation-delay: 0.24s; }
+        .table-section { animation-delay: 0.30s; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo-icon">CA</div>
+            <div><h1>ChurnAnalytics</h1><span>Enterprise Suite</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-label">Analitik</div>
+            <div class="nav-item active"><i class="fa-solid fa-chart-line"></i> EOM Churn Rate Projection</div>
+        </nav>
+        <div class="sidebar-footer">
+            <i class="fa-solid fa-shield-halved" style="margin-right:4px;"></i> Data internal &middot; Q1-Q2 2026
+        </div>
+    </aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <h2>Analitik & Proyeksi Churn</h2>
+                <p>Periode data aktual CSV &mdash; Januari s/d April 2026</p>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-badge"><i class="fa-solid fa-circle"></i> Internal Data</div>
+                <span class="topbar-time" id="liveTime"></span>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="controls-bar">
+                <div class="ctrl-group">
+                    <label for="monthFilter"><i class="fa-regular fa-calendar" style="margin-right:4px;"></i> Periode</label>
+                    <select id="monthFilter" onchange="updateDashboard()">
+                        <option value="4" selected>April 2026</option>
+                        <option value="3">Maret 2026</option>
+                        <option value="2">Februari 2026</option>
+                        <option value="1">Januari 2026</option>
+                    </select>
+                </div>
+                <div class="ctrl-separator"></div>
+                <div class="ctrl-group" id="aprControl">
+                    <label for="lastDate"><i class="fa-solid fa-crosshairs" style="margin-right:4px;"></i> Tgl Aktual Terakhir</label>
+                    <input type="number" id="lastDate" value="23" min="17" max="29" onchange="updateDashboard()">
+                </div>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card" data-color="blue">
+                    <div class="kpi-header"><span class="kpi-label" id="lbl-eop">Proyeksi EOP Akhir Bulan</span><div class="kpi-icon blue"><i class="fa-solid fa-users"></i></div></div>
+                    <div class="kpi-value" id="sum-eop">-</div>
+                    <div class="kpi-sub" id="sub-eop"><i class="fa-solid fa-arrow-up up"></i> <span class="up">+0</span> dari awal bulan</div>
+                </div>
+                <div class="kpi-card" data-color="red">
+                    <div class="kpi-header"><span class="kpi-label" id="lbl-churn">Proyeksi Churn Akhir Bulan</span><div class="kpi-icon red"><i class="fa-solid fa-user-minus"></i></div></div>
+                    <div class="kpi-value" id="sum-churn">-</div>
+                    <div class="kpi-sub" id="sub-churn"><i class="fa-solid fa-arrow-down down"></i> <span class="down">-0</span> dari awal bulan</div>
+                </div>
+                <div class="kpi-card" data-color="amber">
+                    <div class="kpi-header"><span class="kpi-label" id="lbl-rate-current">Rate Aktual Saat Ini</span><div class="kpi-icon amber"><i class="fa-solid fa-gauge-high"></i></div></div>
+                    <div class="kpi-value" id="sum-rate-current">-</div>
+                    <div class="kpi-sub" id="sub-rate-current"><i class="fa-solid fa-circle-info"></i> Titik observasi</div>
+                </div>
+                <div class="kpi-card" data-color="green">
+                    <div class="kpi-header"><span class="kpi-label" id="lbl-rate">Rate Proyeksi Akhir Bulan</span><div class="kpi-icon green"><i class="fa-solid fa-bullseye"></i></div></div>
+                    <div class="kpi-value" id="sum-rate">-</div>
+                    <div class="kpi-sub" id="sub-rate"><i class="fa-solid fa-chart-line"></i> Target akhir periode</div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-header">
+                    <span class="chart-title"><i class="fa-solid fa-chart-area" style="margin-right:8px; color:var(--accent);"></i>Tren Harian EOP & Churn</span>
+                    <div class="chart-legend">
+                        <div class="legend-item"><span class="legend-dot" style="background:var(--red);"></span> Churn Aktual</div>
+                        <div class="legend-item"><span class="legend-dot dashed" style="border-color:var(--red);"></span> Churn Proyeksi</div>
+                        <div class="legend-item"><span class="legend-dot" style="background:var(--accent);"></span> EOP Aktual</div>
+                        <div class="legend-item"><span class="legend-dot dashed" style="border-color:var(--accent);"></span> EOP Proyeksi</div>
+                    </div>
+                </div>
+                <div class="chart-container"><canvas id="dailyChart"></canvas></div>
+            </div>
+
+            <div class="table-section">
+                <div class="table-header">
+                    <span class="table-title"><i class="fa-solid fa-table-list" style="margin-right:8px; color:var(--text-muted);"></i>Detail Data Harian</span>
+                    <span class="table-count" id="tableCount">0 baris</span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Total EOP</th>
+                                <th style="text-align:right;">Predict Churn</th>
+                                <th style="text-align:right;">Churn Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('liveTime').textContent = now.toLocaleString('id-ID', {
+                day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+            });
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        let currentChart = null;
+
+        // DATA AKURAT HISTORIS LENGKAP
+        const rawCSVData = {
+            1: { days: 31, points: { 1: {eop: 449800, churn: 18179}, 4: {eop: 449800, churn: 16914}, 5: {eop: 449575, churn: 16269}, 6: {eop: 450063, churn: 15891}, 7: {eop: 450648, churn: 15618}, 8: {eop: 451401, churn: 15391}, 11: {eop: 451831, churn: 14886}, 12: {eop: 453164, churn: 14735}, 13: {eop: 453494, churn: 14618}, 14: {eop: 453884, churn: 14549}, 18: {eop: 454176, churn: 14192}, 19: {eop: 455313, churn: 14138}, 20: {eop: 455660, churn: 14048}, 21: {eop: 455982, churn: 13969}, 22: {eop: 456335, churn: 13910}, 25: {eop: 456335, churn: 13744}, 26: {eop: 457866, churn: 13718}, 27: {eop: 457635, churn: 13707}, 28: {eop: 456844, churn: 13630}, 29: {eop: 457969, churn: 13571}, 31: {eop: 459419, churn: 13495} } },
+            2: { days: 28, points: { 1: {eop: 459419, churn: 15941}, 2: {eop: 459419, churn: 15408}, 3: {eop: 459419, churn: 14987}, 4: {eop: 459278, churn: 14656}, 5: {eop: 459726, churn: 14422}, 8: {eop: 460271, churn: 13968}, 9: {eop: 462354, churn: 13865}, 10: {eop: 462871, churn: 13699}, 11: {eop: 463009, churn: 13535}, 12: {eop: 463325, churn: 13434}, 15: {eop: 463325, churn: 13124}, 17: {eop: 464332, churn: 12971}, 18: {eop: 464793, churn: 12917}, 19: {eop: 465107, churn: 12859}, 22: {eop: 465452, churn: 12762}, 24: {eop: 466717, churn: 12746}, 25: {eop: 466717, churn: 12731}, 26: {eop: 466791, churn: 12723}, 28: {eop: 466790, churn: 12658} } },
+            3: { days: 31, points: { 1: {eop: 466790, churn: 21636}, 2: {eop: 466790, churn: 18466}, 3: {eop: 466790, churn: 17513}, 4: {eop: 468155, churn: 16941}, 5: {eop: 468436, churn: 16529}, 8: {eop: 468998, churn: 15748}, 9: {eop: 468998, churn: 15389}, 10: {eop: 471212, churn: 15215}, 11: {eop: 471212, churn: 15047}, 12: {eop: 471522, churn: 14877}, 15: {eop: 472375, churn: 14428}, 16: {eop: 472375, churn: 14338}, 17: {eop: 472818, churn: 14246}, 24: {eop: 471932, churn: 13863}, 25: {eop: 471861, churn: 13800}, 26: {eop: 471913, churn: 13753}, 29: {eop: 471913, churn: 13562}, 30: {eop: 472836, churn: 13524}, 31: {eop: 472945, churn: 13469} } },
+            4: { days: 30, points: { 
+                1: {eop: 472945, churn: 21992},
+                5: {eop: 473252, churn: 18109},
+                6: {eop: 473252, churn: 17563},
+                7: {eop: 474496, churn: 17125},
+                8: {eop: 475058, churn: 16743},
+                9: {eop: 475473, churn: 16497},
+                12: {eop: 475746, churn: 15788},
+                13: {eop: 476750, churn: 15561},
+                14: {eop: 476750, churn: 15388},
+                15: {eop: 476750, churn: 15238},
+                16: {eop: 477509, churn: 15089},
+                19: {eop: 478228, churn: 14786},
+                20: {eop: 478228, churn: 14682},
+                21: {eop: 478228, churn: 14612},
+                22: {eop: 479790, churn: 14529},
+                23: {eop: 480101, churn: 14493}
+            } }
+        };
+
+        // FUNGSI INTERPOLASI GANDA (Pisahkan validasi EOP dan Churn)
+        function interpolateData(pointsObj, totalDays) {
+            let keys = Object.keys(pointsObj).map(Number).sort((a, b) => a - b);
+            
+            // 1. Kumpulkan Tanggal di mana EOP BENAR-BENAR BERUBAH (Abaikan data stagnan/stuck)
+            let validEOPKeys = [];
+            let lastEOP = -1;
+            keys.forEach(k => {
+                if (pointsObj[k].eop !== lastEOP) {
+                    validEOPKeys.push(k);
+                    lastEOP = pointsObj[k].eop;
+                }
+            });
+
+            let fullData = [];
+            for (let i = 1; i <= totalDays; i++) {
+                let eopVal = 0, churnVal = 0;
+                let isEopInt = false, isChurnInt = false;
+
+                // --- Smoothing EOP ---
+                if (validEOPKeys.includes(i)) {
+                    eopVal = pointsObj[i].eop; // Titik asli
+                } else {
+                    let prevK = validEOPKeys.slice().reverse().find(k => k < i);
+                    let nextK = validEOPKeys.find(k => k > i);
+                    if (prevK && nextK) {
+                        let ratio = (i - prevK) / (nextK - prevK);
+                        eopVal = pointsObj[prevK].eop + ratio * (pointsObj[nextK].eop - pointsObj[prevK].eop);
+                        isEopInt = true; // Ditandai sebagai interpolasi (karena stagnan/kosong)
+                    } else if (prevK) {
+                        eopVal = pointsObj[prevK].eop;
+                    }
+                }
+
+                // --- Smoothing Churn ---
+                if (keys.includes(i)) {
+                    churnVal = pointsObj[i].churn;
+                } else {
+                    let prevK = keys.slice().reverse().find(k => k < i);
+                    let nextK = keys.find(k => k > i);
+                    if (prevK && nextK) {
+                        let ratio = (i - prevK) / (nextK - prevK);
+                        churnVal = pointsObj[prevK].churn + ratio * (pointsObj[nextK].churn - pointsObj[prevK].churn);
+                        isChurnInt = true;
+                    } else if (prevK) {
+                        churnVal = pointsObj[prevK].churn;
+                    }
+                }
+
+                // --- Status Label ---
+                let type = 'actual';
+                if (keys.includes(i)) {
+                    if (isEopInt) type = 'actual_eop_stuck'; // Tanggal ada, tapi EOP diganti interpolasi
+                } else {
+                    type = 'interpolated';
+                }
+
+                fullData.push({
+                    day: i,
+                    eop: Math.round(eopVal),
+                    churn: Math.round(churnVal),
+                    type: type,
+                    isEopInt: isEopInt
+                });
+            }
+            return fullData;
+        }
+
+        function rateClass(rate) {
+            let r = parseFloat(rate);
+            if (r < 2.9) return 'rate-good';
+            if (r < 3.2) return 'rate-warn';
+            return 'rate-bad';
+        }
+
+        function updateDashboard() {
+            const monthVal = parseInt(document.getElementById('monthFilter').value);
+            const aprControl = document.getElementById('aprControl');
+            let monthName = ["", "Januari", "Februari", "Maret", "April"][monthVal];
+            let dailyData = [];
+
+            if (monthVal === 4) {
+                aprControl.style.display = 'flex';
+                let lastDate = parseInt(document.getElementById('lastDate').value);
+                
+                const avg_eop_growth = 260.05618;
+                const mar_17_churn = 14246, mar_24_churn = 13863, mar_31_churn = 13469;
+                const mar_daily_drop = (mar_17_churn - mar_24_churn) / 7;
+
+                let filledActuals = interpolateData(rawCSVData[4].points, 30);
+                let actualDataAtLastDate = filledActuals.find(d => d.day === lastDate);
+                let currentActualEOP = actualDataAtLastDate.eop;
+                let currentActualChurn = actualDataAtLastDate.churn;
+
+                let targetEOP = currentActualEOP + (avg_eop_growth * (30 - lastDate)); 
+                let mar_est_last_date = mar_17_churn - (mar_daily_drop * (lastDate - 17));
+                let ratio_to_end = mar_31_churn / mar_est_last_date;
+                let targetChurn = currentActualChurn * ratio_to_end;
+
+                for (let i = 1; i <= 30; i++) {
+                    let d = filledActuals[i - 1];
+                    if (i <= lastDate) {
+                        dailyData.push(d);
+                    } else {
+                        let stepsTotal = 30 - lastDate;
+                        let progress = (i - lastDate) / stepsTotal;
+                        dailyData.push({
+                            day: i,
+                            eop: Math.round(currentActualEOP + ((targetEOP - currentActualEOP) * progress)),
+                            churn: Math.round(currentActualChurn + ((targetChurn - currentActualChurn) * progress)),
+                            type: 'projection',
+                            isEopInt: false // Proyeksi tidak pakai badge interpolasi historis
+                        });
+                    }
+                }
+            } else {
+                aprControl.style.display = 'none';
+                let hist = rawCSVData[monthVal];
+                let filled = interpolateData(hist.points, hist.days);
+                filled.forEach(d => dailyData.push(d));
+            }
+
+            dailyData.forEach(d => { d.rate = ((d.churn / d.eop) * 100).toFixed(2); });
+
+            const finalData = dailyData[dailyData.length - 1];
+            const firstData = dailyData[0];
+
+            if (monthVal === 4) {
+                let lastDate = parseInt(document.getElementById('lastDate').value);
+                let currentData = dailyData[lastDate - 1];
+
+                document.getElementById('lbl-eop').innerText = "Proyeksi EOP Akhir Bulan";
+                document.getElementById('lbl-churn').innerText = "Proyeksi Churn Akhir Bulan";
+                document.getElementById('lbl-rate-current').innerText = `Rate Aktual (Tgl ${lastDate})`;
+                document.getElementById('lbl-rate').innerText = "Rate Proyeksi (Tgl 30)";
+
+                document.getElementById('sum-eop').innerText = finalData.eop.toLocaleString('id-ID');
+                document.getElementById('sum-churn').innerText = finalData.churn.toLocaleString('id-ID');
+                document.getElementById('sum-rate-current').innerText = currentData.rate + "%";
+                document.getElementById('sum-rate').innerText = finalData.rate + "%";
+
+                let eopDiff = finalData.eop - firstData.eop;
+                let churnDiff = finalData.churn - firstData.churn;
+                document.getElementById('sub-eop').innerHTML = `<i class="fa-solid fa-arrow-up up"></i> <span class="up">+${eopDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
+                document.getElementById('sub-churn').innerHTML = `<i class="fa-solid fa-arrow-down down"></i> <span class="down">${churnDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
+                document.getElementById('sub-rate-current').innerHTML = `<i class="fa-solid fa-circle-info"></i> Observasi per ${lastDate} ${monthName}`;
+                document.getElementById('sub-rate').innerHTML = `<i class="fa-solid fa-chart-line"></i> Estimasi per 30 ${monthName}`;
+            } else {
+                document.getElementById('lbl-eop').innerText = "Total EOP Akhir Bulan";
+                document.getElementById('lbl-churn').innerText = "Total Churn Akhir Bulan";
+                document.getElementById('lbl-rate-current').innerText = "Rate Tengah Bulan (Tgl 15)";
+                document.getElementById('lbl-rate').innerText = "Rate Akhir Bulan";
+
+                let midData = dailyData[14];
+                document.getElementById('sum-eop').innerText = finalData.eop.toLocaleString('id-ID');
+                document.getElementById('sum-churn').innerText = finalData.churn.toLocaleString('id-ID');
+                document.getElementById('sum-rate-current').innerText = midData.rate + "%";
+                document.getElementById('sum-rate').innerText = finalData.rate + "%";
+
+                let eopDiff = finalData.eop - firstData.eop;
+                let churnDiff = finalData.churn - firstData.churn;
+                document.getElementById('sub-eop').innerHTML = `<i class="fa-solid fa-arrow-up up"></i> <span class="up">+${eopDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
+                document.getElementById('sub-churn').innerHTML = `<i class="fa-solid fa-arrow-down down"></i> <span class="down">${churnDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
+                document.getElementById('sub-rate-current').innerHTML = `<i class="fa-solid fa-circle-info"></i> Observasi per 15 ${monthName}`;
+                document.getElementById('sub-rate').innerHTML = `<i class="fa-solid fa-chart-line"></i> Penutupan ${monthName}`;
+            }
+
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            document.getElementById('tableCount').textContent = dailyData.length + ' baris';
+            dailyData.forEach(d => {
+                const tr = document.createElement('tr');
+                let pillHTML = '';
+                
+                if (d.type === 'actual') pillHTML = `<span class="status-pill actual"><i class="fa-solid fa-circle"></i> Aktual</span>`;
+                else if (d.type === 'actual_eop_stuck') pillHTML = `<span class="status-pill actual"><i class="fa-solid fa-circle"></i> Aktual</span>`; // Tetap aktual walau EOP dihaluskan
+                else if (d.type === 'interpolated') pillHTML = `<span class="status-pill interpolated"><i class="fa-solid fa-circle"></i> Interpolasi</span>`;
+                else pillHTML = `<span class="status-pill projection"><i class="fa-solid fa-circle"></i> Proyeksi</span>`;
+
+                tr.innerHTML = `
+                    <td class="td-date">${d.day} ${monthName}</td>
+                    <td>${pillHTML}</td>
+                    <td class="td-num" style="text-align:right;">
+                        ${d.eop.toLocaleString('id-ID')}
+                        ${d.isEopInt ? '<span class="badge-intp">Intp</span>' : ''}
+                    </td>
+                    <td class="td-num" style="text-align:right;">${d.churn.toLocaleString('id-ID')}</td>
+                    <td class="rate-cell ${rateClass(d.rate)}" style="text-align:right;">${d.rate}%</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            renderChart(dailyData, monthName, monthVal);
+        }
+
+        function renderChart(data, monthName, monthVal) {
+            const ctx = document.getElementById('dailyChart').getContext('2d');
+            if (currentChart) currentChart.destroy();
+
+            const labels = data.map(d => d.day);
+            let lastActualIndex = data.filter(d => d.type !== 'projection').length - 1;
+
+            let churnActual = data.map((d, i) => i <= lastActualIndex ? d.churn : null);
+            let churnProj = data.map((d, i) => i >= lastActualIndex ? d.churn : null);
+            let eopActual = data.map((d, i) => i <= lastActualIndex ? d.eop : null);
+            let eopProj = data.map((d, i) => i >= lastActualIndex ? d.eop : null);
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Aktual: Churn', data: churnActual, borderColor: '#ff5c72', backgroundColor: 'rgba(255, 92, 114, 0.08)', borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, pointBackgroundColor: '#ff5c72', pointBorderColor: '#0c0f14', pointBorderWidth: 2, yAxisID: 'y', fill: true, tension: 0.35 },
+                        { label: 'Proyeksi: Churn', data: churnProj, borderColor: '#ff5c72', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: '#ff5c72', pointBorderColor: '#0c0f14', pointBorderWidth: 2, yAxisID: 'y', fill: false, tension: 0.35 },
+                        { label: 'Aktual: EOP', data: eopActual, borderColor: '#00d4aa', backgroundColor: 'rgba(0, 212, 170, 0.06)', borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, pointBackgroundColor: '#00d4aa', pointBorderColor: '#0c0f14', pointBorderWidth: 2, yAxisID: 'y1', fill: true, tension: 0.35 },
+                        { label: 'Proyeksi: EOP', data: eopProj, borderColor: '#00d4aa', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: '#00d4aa', pointBorderColor: '#0c0f14', pointBorderWidth: 2, yAxisID: 'y1', fill: false, tension: 0.35 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1a1f2b', titleColor: '#e8ecf4', bodyColor: '#8892a8', borderColor: '#262d3d', borderWidth: 1, padding: 12, cornerRadius: 8, titleFont: { family: 'Space Grotesk', weight: '600', size: 13 }, bodyFont: { family: 'DM Sans', size: 12 }, displayColors: true, boxWidth: 8, boxHeight: 8, boxPadding: 4, callbacks: { title: (items) => `Tanggal ${items[0].label} ${monthName}`, label: function (context) { let label = context.dataset.label || ''; if (label) label += ': '; if (context.parsed.y !== null) label += new Intl.NumberFormat('id-ID').format(context.parsed.y); return label; } } } },
+                    scales: {
+                        x: { grid: { color: 'rgba(38,45,61,0.5)', drawTicks: false }, ticks: { color: '#5a6478', font: { family: 'DM Sans', size: 11 }, padding: 8, maxRotation: 0, callback: function(val, idx) { return (idx % 5 === 0 || idx === data.length - 1) ? this.getLabelForValue(val) : ''; } }, border: { display: false } },
+                        y: { position: 'left', grid: { color: 'rgba(38,45,61,0.4)', drawTicks: false }, ticks: { color: '#5a6478', font: { family: 'Space Grotesk', size: 11 }, padding: 10, callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v }, border: { display: false } },
+                        y1: { position: 'right', grid: { drawOnChartArea: false, drawTicks: false }, ticks: { color: '#5a6478', font: { family: 'Space Grotesk', size: 11 }, padding: 10, callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v }, border: { display: false } }
+                    }
+                }
+            });
+        }
+
+        window.onload = updateDashboard;
+    </script>
+</body>
+</html>
