@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
+<head>	
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Analitik Churn 2026</title>
@@ -146,6 +146,7 @@
         .chart-section { animation-delay: 0.24s; }
         .table-section { animation-delay: 0.30s; }
     </style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
 
@@ -264,30 +265,58 @@
 
         let currentChart = null;
 
-        // DATA AKURAT HISTORIS LENGKAP
-        const rawCSVData = {
-            1: { days: 31, points: { 1: {eop: 449800, churn: 18179}, 4: {eop: 449800, churn: 16914}, 5: {eop: 449575, churn: 16269}, 6: {eop: 450063, churn: 15891}, 7: {eop: 450648, churn: 15618}, 8: {eop: 451401, churn: 15391}, 11: {eop: 451831, churn: 14886}, 12: {eop: 453164, churn: 14735}, 13: {eop: 453494, churn: 14618}, 14: {eop: 453884, churn: 14549}, 18: {eop: 454176, churn: 14192}, 19: {eop: 455313, churn: 14138}, 20: {eop: 455660, churn: 14048}, 21: {eop: 455982, churn: 13969}, 22: {eop: 456335, churn: 13910}, 25: {eop: 456335, churn: 13744}, 26: {eop: 457866, churn: 13718}, 27: {eop: 457635, churn: 13707}, 28: {eop: 456844, churn: 13630}, 29: {eop: 457969, churn: 13571}, 31: {eop: 459419, churn: 13495} } },
-            2: { days: 28, points: { 1: {eop: 459419, churn: 15941}, 2: {eop: 459419, churn: 15408}, 3: {eop: 459419, churn: 14987}, 4: {eop: 459278, churn: 14656}, 5: {eop: 459726, churn: 14422}, 8: {eop: 460271, churn: 13968}, 9: {eop: 462354, churn: 13865}, 10: {eop: 462871, churn: 13699}, 11: {eop: 463009, churn: 13535}, 12: {eop: 463325, churn: 13434}, 15: {eop: 463325, churn: 13124}, 17: {eop: 464332, churn: 12971}, 18: {eop: 464793, churn: 12917}, 19: {eop: 465107, churn: 12859}, 22: {eop: 465452, churn: 12762}, 24: {eop: 466717, churn: 12746}, 25: {eop: 466717, churn: 12731}, 26: {eop: 466791, churn: 12723}, 28: {eop: 466790, churn: 12658} } },
-            3: { days: 31, points: { 1: {eop: 466790, churn: 21636}, 2: {eop: 466790, churn: 18466}, 3: {eop: 466790, churn: 17513}, 4: {eop: 468155, churn: 16941}, 5: {eop: 468436, churn: 16529}, 8: {eop: 468998, churn: 15748}, 9: {eop: 468998, churn: 15389}, 10: {eop: 471212, churn: 15215}, 11: {eop: 471212, churn: 15047}, 12: {eop: 471522, churn: 14877}, 15: {eop: 472375, churn: 14428}, 16: {eop: 472375, churn: 14338}, 17: {eop: 472818, churn: 14246}, 24: {eop: 471932, churn: 13863}, 25: {eop: 471861, churn: 13800}, 26: {eop: 471913, churn: 13753}, 29: {eop: 471913, churn: 13562}, 30: {eop: 472836, churn: 13524}, 31: {eop: 472945, churn: 13469} } },
-            4: { days: 30, points: { 
-                1: {eop: 472945, churn: 21992},
-                5: {eop: 473252, churn: 18109},
-                6: {eop: 473252, churn: 17563},
-                7: {eop: 474496, churn: 17125},
-                8: {eop: 475058, churn: 16743},
-                9: {eop: 475473, churn: 16497},
-                12: {eop: 475746, churn: 15788},
-                13: {eop: 476750, churn: 15561},
-                14: {eop: 476750, churn: 15388},
-                15: {eop: 476750, churn: 15238},
-                16: {eop: 477509, churn: 15089},
-                19: {eop: 478228, churn: 14786},
-                20: {eop: 478228, churn: 14682},
-                21: {eop: 478228, churn: 14612},
-                22: {eop: 479790, churn: 14529},
-                23: {eop: 480101, churn: 14493}
-            } }
+        // 1. Siapkan struktur dasar
+        let rawCSVData = {
+            1: { days: 31, points: {} },
+            2: { days: 28, points: {} },
+            3: { days: 31, points: {} },
+            // Untuk bulan 4, kita biarkan kosong dulu karena masih berjalan/simulasi
+            4: { days: 30, points: {} }
         };
+
+        // 2. Fungsi untuk membaca file CSV dan memindahkannya ke rawCSVData
+        function loadCSVFile(month, fileName) {
+            return new Promise((resolve) => {
+                Papa.parse(fileName, {
+                    download: true, // Ambil file dari URL/GitHub
+                    header: true,   // Gunakan baris pertama sebagai nama kolom
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        results.data.forEach(row => {
+                            // Pastikan baris memiliki data yang dibutuhkan
+                            if(row.Date && row["Predict Churn Sub"] && row.EOP) {
+                                // Ambil angka tanggal (misal "12-Jan" jadi 12)
+                                let day = parseInt(row.Date.split('-')[0]);
+                                // Hapus tanda koma dari angka CSV lalu ubah jadi Integer
+                                let churn = parseInt(row["Predict Churn Sub"].replace(/,/g, ''));
+                                let eop = parseInt(row.EOP.replace(/,/g, ''));
+                                
+                                if(!isNaN(day) && !isNaN(churn) && !isNaN(eop)) {
+                                    rawCSVData[month].points[day] = { eop: eop, churn: churn };
+                                }
+                            }
+                        });
+                        resolve();
+                    }
+                });
+            });
+        }
+
+        // 3. Fungsi utama yang dijalankan saat web dibuka
+        async function initDashboard() {
+            // Tarik data CSV secara bersamaan (Pastikan nama file sesuai dengan yang diunggah)
+            await Promise.all([
+                loadCSVFile(1, '2026-01.csv'),
+                loadCSVFile(2, '2026-02.csv'),
+                loadCSVFile(3, '2026-03.csv')
+            ]);
+            
+            // Setelah semua data CSV masuk ke memori, jalankan dashboard
+            updateDashboard();
+        }
+
+        // 4. Ubah pemicu awal dari updateDashboard menjadi initDashboard
+        window.onload = initDashboard;
 
         // FUNGSI INTERPOLASI GANDA (Pisahkan validasi EOP dan Churn)
         function interpolateData(pointsObj, totalDays) {
