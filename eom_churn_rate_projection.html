@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard EOM Churn Rate Prediction 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -126,7 +127,6 @@
         .status-pill.interpolated { background: rgba(138,150,180,0.12); color: var(--text-secondary); }
         .status-pill.projection { background: var(--amber-dim); color: var(--amber); }
         
-        /* Badge Interpolasi Spesifik untuk EOP */
         .badge-intp { font-size: 9px; background: rgba(138,150,180,0.15); color: var(--text-secondary); padding: 2px 5px; border-radius: 4px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.5px; font-family: 'DM Sans', sans-serif; font-weight: 600;}
         
         .rate-cell { font-family: 'Space Grotesk', sans-serif; }
@@ -146,7 +146,6 @@
         .chart-section { animation-delay: 0.24s; }
         .table-section { animation-delay: 0.30s; }
     </style>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
 
@@ -265,8 +264,7 @@
 
         let currentChart = null;
 
-        // DATA AKURAT HISTORIS LENGKAP
-        // 1. Siapkan struktur dasar
+        // 1. STRUKTUR DASAR (KOSONG, MENUNGGU GITHUB)
         let rawCSVData = {
             1: { days: 31, points: {} },
             2: { days: 28, points: {} },
@@ -274,34 +272,30 @@
             4: { days: 30, points: {} }
         };
 
-        // 2. Fungsi untuk membaca file CSV dan memindahkannya ke rawCSVData
+        // 2. PARSING CSV (Bisa menerima baris yang salah satu datanya kosong)
         function loadCSVFile(month, fileName) {
             return new Promise((resolve) => {
                 Papa.parse(fileName, {
-                    download: true, // Ambil file dari URL/GitHub
-                    header: true,   // Gunakan baris pertama sebagai nama kolom
+                    download: true,
+                    header: true,
                     skipEmptyLines: true,
                     complete: function(results) {
                         results.data.forEach(row => {
                             if(row.Date) {
                                 let day = parseInt(row.Date.split('-')[0]);
                                 
-                                // Ambil EOP jika ada
+                                // Deteksi angka walau kolom lain kosong
                                 let eopStr = row.EOP ? row.EOP.replace(/,/g, '') : '';
                                 let eop = parseInt(eopStr);
                                 
-                                // Ambil Churn jika ada
                                 let churnStr = row["Predict Churn Sub"] ? row["Predict Churn Sub"].replace(/,/g, '') : '';
                                 let churn = parseInt(churnStr);
                                 
-                                if(!isNaN(day)) {
-                                    // Simpan data asalkan salah satu (EOP atau Churn) ada isinya
-                                    if (!isNaN(eop) || !isNaN(churn)) {
-                                        rawCSVData[month].points[day] = { 
-                                            eop: !isNaN(eop) ? eop : null, 
-                                            churn: !isNaN(churn) ? churn : null 
-                                        };
-                                    }
+                                if(!isNaN(day) && (!isNaN(eop) || !isNaN(churn))) {
+                                    rawCSVData[month].points[day] = { 
+                                        eop: !isNaN(eop) ? eop : null, 
+                                        churn: !isNaN(churn) ? churn : null 
+                                    };
                                 }
                             }
                         });
@@ -311,9 +305,8 @@
             });
         }
 
-        // 3. Fungsi utama yang dijalankan saat web dibuka
+        // 3. FUNGSI INISIASI
         async function initDashboard() {
-            // Tarik data CSV secara bersamaan dari GitHub
             await Promise.all([
                 loadCSVFile(1, '2026-01.csv'),
                 loadCSVFile(2, '2026-02.csv'),
@@ -321,27 +314,28 @@
                 loadCSVFile(4, '2026-04.csv')
             ]);
             
-            // --- LOGIKA BARU: Set Input Tanggal Dinamis ---
+            // Logika mengatur <input> tanggal terakhir otomatis dari file April
             let aprPoints = rawCSVData[4].points;
-            let aprKeys = Object.keys(aprPoints).map(Number); // Ambil semua tanggal yang ada di CSV April
+            let aprKeys = Object.keys(aprPoints).map(Number);
+            let inputLastDate = document.getElementById('lastDate');
             
             if (aprKeys.length > 0) {
-                let latestDay = Math.max(...aprKeys); // Cari tanggal paling tinggi
-                let inputLastDate = document.getElementById('lastDate');
-                
-                inputLastDate.min = 1;                 // Set batas minimum ke tanggal 1
-                inputLastDate.max = latestDay;         // Set batas maksimum ke tanggal terbaru di CSV
-                inputLastDate.value = latestDay;       // Set nilai awal/default ke tanggal terbaru
+                let latestDay = Math.max(...aprKeys);
+                inputLastDate.min = 1;
+                inputLastDate.max = latestDay;
+                inputLastDate.value = latestDay;
+            } else {
+                inputLastDate.min = 1;
+                inputLastDate.max = 30;
+                inputLastDate.value = 1;
             }
             
-            // Setelah data ditarik dan input diatur, jalankan dashboard
             updateDashboard();
         }
 
-        // 4. Ubah pemicu awal dari updateDashboard menjadi initDashboard
         window.onload = initDashboard;
 
-        // FUNGSI INTERPOLASI GANDA (Pisahkan validasi EOP dan Churn)
+        // 4. INTERPOLASI LOGIC (Memisahkan pengecekan stagnasi)
         function interpolateData(pointsObj, totalDays) {
             let keys = Object.keys(pointsObj).map(Number).sort((a, b) => a - b);
             
@@ -349,17 +343,14 @@
             let validChurnKeys = [];
             let lastEOP = -1;
 
-            // 1. Kumpulkan Tanggal Aktual yang Benar-benar Valid
             keys.forEach(k => {
                 let pt = pointsObj[k];
-                
-                // Untuk EOP: Hanya catat jika angkanya ada dan BERUBAH dari hari sebelumnya
+                // EOP: Hanya catat sebagai aktual jika angkanya berubah dari sebelumnya
                 if (pt.eop !== null && pt.eop !== lastEOP) {
                     validEOPKeys.push(k);
                     lastEOP = pt.eop;
                 }
-                
-                // Untuk Churn: Catat semua yang ada angkanya
+                // Churn: Catat semua yang ada angkanya
                 if (pt.churn !== null) {
                     validChurnKeys.push(k);
                 }
@@ -370,22 +361,23 @@
                 let eopVal = 0, churnVal = 0;
                 let isEopInt = false, isChurnInt = false;
 
-                // --- Smoothing EOP ---
+                // Hitung EOP
                 if (validEOPKeys.includes(i)) {
-                    eopVal = pointsObj[i].eop; // Titik asli EOP berubah
+                    eopVal = pointsObj[i].eop;
                 } else {
                     let prevK = validEOPKeys.slice().reverse().find(k => k < i);
                     let nextK = validEOPKeys.find(k => k > i);
                     if (prevK && nextK) {
                         let ratio = (i - prevK) / (nextK - prevK);
                         eopVal = pointsObj[prevK].eop + ratio * (pointsObj[nextK].eop - pointsObj[prevK].eop);
-                        isEopInt = true; // Ditandai sebagai interpolasi (karena stagnan/kosong)
+                        isEopInt = true;
                     } else if (prevK) {
                         eopVal = pointsObj[prevK].eop;
+                        isEopInt = true;
                     }
                 }
 
-                // --- Smoothing Churn ---
+                // Hitung Churn
                 if (validChurnKeys.includes(i)) {
                     churnVal = pointsObj[i].churn;
                 } else {
@@ -397,16 +389,19 @@
                         isChurnInt = true;
                     } else if (prevK) {
                         churnVal = pointsObj[prevK].churn;
+                        isChurnInt = true;
                     }
                 }
 
-                // --- Status Label ---
+                // Label Status Pill
                 let type = 'actual';
-                // Jika hari tersebut ADA di CSV (baik EOP maupun churn)
-                if (keys.includes(i)) {
-                    if (isEopInt) type = 'actual_eop_stuck'; 
-                } else {
+                // Jika tidak ada di CSV, atau kedua angkanya "stuck"/diinterpolasi, maka statusnya Interpolasi
+                if (!keys.includes(i) || (isEopInt && isChurnInt)) {
                     type = 'interpolated';
+                } else if (isEopInt) {
+                    type = 'actual_eop_stuck'; // Tanggal ada datanya, tp EOP nya stagnan
+                } else if (isChurnInt) {
+                    type = 'actual_churn_stuck';
                 }
 
                 fullData.push({
@@ -414,7 +409,8 @@
                     eop: Math.round(eopVal),
                     churn: Math.round(churnVal),
                     type: type,
-                    isEopInt: isEopInt
+                    isEopInt: isEopInt,
+                    isChurnInt: isChurnInt
                 });
             }
             return fullData;
@@ -427,6 +423,7 @@
             return 'rate-bad';
         }
 
+        // 5. RENDER DASHBOARD
         function updateDashboard() {
             const monthVal = parseInt(document.getElementById('monthFilter').value);
             const aprControl = document.getElementById('aprControl');
@@ -442,7 +439,9 @@
                 const mar_daily_drop = (mar_17_churn - mar_24_churn) / 7;
 
                 let filledActuals = interpolateData(rawCSVData[4].points, 30);
-                let actualDataAtLastDate = filledActuals.find(d => d.day === lastDate);
+                
+                // Cari data aktual di hari terakhir input
+                let actualDataAtLastDate = filledActuals.find(d => d.day === lastDate) || filledActuals[filledActuals.length-1];
                 let currentActualEOP = actualDataAtLastDate.eop;
                 let currentActualChurn = actualDataAtLastDate.churn;
 
@@ -463,7 +462,8 @@
                             eop: Math.round(currentActualEOP + ((targetEOP - currentActualEOP) * progress)),
                             churn: Math.round(currentActualChurn + ((targetChurn - currentActualChurn) * progress)),
                             type: 'projection',
-                            isEopInt: false // Proyeksi tidak pakai badge interpolasi historis
+                            isEopInt: false,
+                            isChurnInt: false
                         });
                     }
                 }
@@ -522,14 +522,20 @@
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
             document.getElementById('tableCount').textContent = dailyData.length + ' baris';
+            
             dailyData.forEach(d => {
                 const tr = document.createElement('tr');
                 let pillHTML = '';
                 
-                if (d.type === 'actual') pillHTML = `<span class="status-pill actual"><i class="fa-solid fa-circle"></i> Aktual</span>`;
-                else if (d.type === 'actual_eop_stuck') pillHTML = `<span class="status-pill actual"><i class="fa-solid fa-circle"></i> Aktual</span>`; // Tetap aktual walau EOP dihaluskan
-                else if (d.type === 'interpolated') pillHTML = `<span class="status-pill interpolated"><i class="fa-solid fa-circle"></i> Interpolasi</span>`;
-                else pillHTML = `<span class="status-pill projection"><i class="fa-solid fa-circle"></i> Proyeksi</span>`;
+                // Menentukan Status Pill
+                if (d.type === 'actual') {
+                    pillHTML = `<span class="status-pill actual"><i class="fa-solid fa-circle"></i> Aktual</span>`;
+                } else if (d.type === 'projection') {
+                    pillHTML = `<span class="status-pill projection"><i class="fa-solid fa-circle"></i> Proyeksi</span>`;
+                } else {
+                    // Semua yang terindikasi interpolasi ATAU stuck akan menampilkan pil Interpolasi
+                    pillHTML = `<span class="status-pill interpolated"><i class="fa-solid fa-circle"></i> Interpolasi</span>`;
+                }
 
                 tr.innerHTML = `
                     <td class="td-date">${d.day} ${monthName}</td>
@@ -538,7 +544,10 @@
                         ${d.eop.toLocaleString('id-ID')}
                         ${d.isEopInt ? '<span class="badge-intp">Intp</span>' : ''}
                     </td>
-                    <td class="td-num" style="text-align:right;">${d.churn.toLocaleString('id-ID')}</td>
+                    <td class="td-num" style="text-align:right;">
+                        ${d.churn.toLocaleString('id-ID')}
+                        ${d.isChurnInt ? '<span class="badge-intp">Intp</span>' : ''}
+                    </td>
                     <td class="rate-cell ${rateClass(d.rate)}" style="text-align:right;">${d.rate}%</td>
                 `;
                 tableBody.appendChild(tr);
