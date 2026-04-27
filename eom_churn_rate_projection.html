@@ -190,7 +190,7 @@
                 <div class="ctrl-separator"></div>
                 <div class="ctrl-group" id="aprControl">
                     <label for="lastDate"><i class="fa-solid fa-crosshairs" style="margin-right:4px;"></i> Tgl Aktual Terakhir</label>
-                    <input type="number" id="lastDate" value="23" min="17" max="29" onchange="updateDashboard()">
+                    <input type="number" id="lastDate" onchange="updateDashboard()">
                 </div>
             </div>
 
@@ -271,7 +271,6 @@
             1: { days: 31, points: {} },
             2: { days: 28, points: {} },
             3: { days: 31, points: {} },
-            // Untuk bulan 4, kita biarkan kosong dulu karena masih berjalan/simulasi
             4: { days: 30, points: {} }
         };
 
@@ -314,15 +313,28 @@
 
         // 3. Fungsi utama yang dijalankan saat web dibuka
         async function initDashboard() {
-            // Tarik data CSV secara bersamaan (Pastikan nama file sesuai dengan yang diunggah)
+            // Tarik data CSV secara bersamaan dari GitHub
             await Promise.all([
                 loadCSVFile(1, '2026-01.csv'),
                 loadCSVFile(2, '2026-02.csv'),
                 loadCSVFile(3, '2026-03.csv'),
-				loadCSVFile(4, '2026-04.csv')
+                loadCSVFile(4, '2026-04.csv')
             ]);
             
-            // Setelah semua data CSV masuk ke memori, jalankan dashboard
+            // --- LOGIKA BARU: Set Input Tanggal Dinamis ---
+            let aprPoints = rawCSVData[4].points;
+            let aprKeys = Object.keys(aprPoints).map(Number); // Ambil semua tanggal yang ada di CSV April
+            
+            if (aprKeys.length > 0) {
+                let latestDay = Math.max(...aprKeys); // Cari tanggal paling tinggi
+                let inputLastDate = document.getElementById('lastDate');
+                
+                inputLastDate.min = 1;                 // Set batas minimum ke tanggal 1
+                inputLastDate.max = latestDay;         // Set batas maksimum ke tanggal terbaru di CSV
+                inputLastDate.value = latestDay;       // Set nilai awal/default ke tanggal terbaru
+            }
+            
+            // Setelah data ditarik dan input diatur, jalankan dashboard
             updateDashboard();
         }
 
