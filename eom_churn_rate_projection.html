@@ -284,16 +284,25 @@
                     skipEmptyLines: true,
                     complete: function(results) {
                         results.data.forEach(row => {
-                            // Pastikan baris memiliki data yang dibutuhkan
-                            if(row.Date && row["Predict Churn Sub"] && row.EOP) {
-                                // Ambil angka tanggal (misal "12-Jan" jadi 12)
+                            if(row.Date) {
                                 let day = parseInt(row.Date.split('-')[0]);
-                                // Hapus tanda koma dari angka CSV lalu ubah jadi Integer
-                                let churn = parseInt(row["Predict Churn Sub"].replace(/,/g, ''));
-                                let eop = parseInt(row.EOP.replace(/,/g, ''));
                                 
-                                if(!isNaN(day) && !isNaN(churn) && !isNaN(eop)) {
-                                    rawCSVData[month].points[day] = { eop: eop, churn: churn };
+                                // Ambil EOP jika ada
+                                let eopStr = row.EOP ? row.EOP.replace(/,/g, '') : '';
+                                let eop = parseInt(eopStr);
+                                
+                                // Ambil Churn jika ada
+                                let churnStr = row["Predict Churn Sub"] ? row["Predict Churn Sub"].replace(/,/g, '') : '';
+                                let churn = parseInt(churnStr);
+                                
+                                if(!isNaN(day)) {
+                                    // Simpan data asalkan salah satu (EOP atau Churn) ada isinya
+                                    if (!isNaN(eop) || !isNaN(churn)) {
+                                        rawCSVData[month].points[day] = { 
+                                            eop: !isNaN(eop) ? eop : null, 
+                                            churn: !isNaN(churn) ? churn : null 
+                                        };
+                                    }
                                 }
                             }
                         });
@@ -324,13 +333,23 @@
         function interpolateData(pointsObj, totalDays) {
             let keys = Object.keys(pointsObj).map(Number).sort((a, b) => a - b);
             
-            // 1. Kumpulkan Tanggal di mana EOP BENAR-BENAR BERUBAH (Abaikan data stagnan/stuck)
             let validEOPKeys = [];
+            let validChurnKeys = [];
             let lastEOP = -1;
+
+            // 1. Kumpulkan Tanggal Aktual yang Benar-benar Valid
             keys.forEach(k => {
-                if (pointsObj[k].eop !== lastEOP) {
+                let pt = pointsObj[k];
+                
+                // Untuk EOP: Hanya catat jika angkanya ada dan BERUBAH dari hari sebelumnya
+                if (pt.eop !== null && pt.eop !== lastEOP) {
                     validEOPKeys.push(k);
-                    lastEOP = pointsObj[k].eop;
+                    lastEOP = pt.eop;
+                }
+                
+                // Untuk Churn: Catat semua yang ada angkanya
+                if (pt.churn !== null) {
+                    validChurnKeys.push(k);
                 }
             });
 
@@ -341,7 +360,7 @@
 
                 // --- Smoothing EOP ---
                 if (validEOPKeys.includes(i)) {
-                    eopVal = pointsObj[i].eop; // Titik asli
+                    eopVal = pointsObj[i].eop; // Titik asli EOP berubah
                 } else {
                     let prevK = validEOPKeys.slice().reverse().find(k => k < i);
                     let nextK = validEOPKeys.find(k => k > i);
@@ -355,11 +374,11 @@
                 }
 
                 // --- Smoothing Churn ---
-                if (keys.includes(i)) {
+                if (validChurnKeys.includes(i)) {
                     churnVal = pointsObj[i].churn;
                 } else {
-                    let prevK = keys.slice().reverse().find(k => k < i);
-                    let nextK = keys.find(k => k > i);
+                    let prevK = validChurnKeys.slice().reverse().find(k => k < i);
+                    let nextK = validChurnKeys.find(k => k > i);
                     if (prevK && nextK) {
                         let ratio = (i - prevK) / (nextK - prevK);
                         churnVal = pointsObj[prevK].churn + ratio * (pointsObj[nextK].churn - pointsObj[prevK].churn);
@@ -371,8 +390,9 @@
 
                 // --- Status Label ---
                 let type = 'actual';
+                // Jika hari tersebut ADA di CSV (baik EOP maupun churn)
                 if (keys.includes(i)) {
-                    if (isEopInt) type = 'actual_eop_stuck'; // Tanggal ada, tapi EOP diganti interpolasi
+                    if (isEopInt) type = 'actual_eop_stuck'; 
                 } else {
                     type = 'interpolated';
                 }
