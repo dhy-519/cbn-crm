@@ -423,7 +423,7 @@
             return 'rate-bad';
         }
 
-        // 5. RENDER DASHBOARD
+        // 5. RENDER DASHBOARD (SUDAH DIKOREKSI BUG KALENDERNYA)
         function updateDashboard() {
             const monthVal = parseInt(document.getElementById('monthFilter').value);
             const aprControl = document.getElementById('aprControl');
@@ -435,8 +435,10 @@
                 let lastDate = parseInt(document.getElementById('lastDate').value);
                 
                 const avg_eop_growth = 260.05618;
-                const mar_17_churn = 14246, mar_24_churn = 13863, mar_31_churn = 13469;
-                const mar_daily_drop = (mar_17_churn - mar_24_churn) / 7;
+                
+                // DATA KOREKSI: Gunakan nominal drop per hari dari minggu terakhir bulan Maret
+                const mar_24_churn = 13863, mar_31_churn = 13469;
+                const mar_end_daily_drop = (mar_24_churn - mar_31_churn) / 7; // ~56.28 pelanggan/hari
 
                 let filledActuals = interpolateData(rawCSVData[4].points, 30);
                 
@@ -445,10 +447,11 @@
                 let currentActualEOP = actualDataAtLastDate.eop;
                 let currentActualChurn = actualDataAtLastDate.churn;
 
-                let targetEOP = currentActualEOP + (avg_eop_growth * (30 - lastDate)); 
-                let mar_est_last_date = mar_17_churn - (mar_daily_drop * (lastDate - 17));
-                let ratio_to_end = mar_31_churn / mar_est_last_date;
-                let targetChurn = currentActualChurn * ratio_to_end;
+                let remainingDays = 30 - lastDate;
+
+                // Hitung Target menggunakan nominal pertumbuhan EOP dan nominal penurunan Churn
+                let targetEOP = currentActualEOP + (avg_eop_growth * remainingDays); 
+                let targetChurn = currentActualChurn - (mar_end_daily_drop * remainingDays);
 
                 for (let i = 1; i <= 30; i++) {
                     let d = filledActuals[i - 1];
