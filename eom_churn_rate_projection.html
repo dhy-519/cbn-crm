@@ -272,7 +272,7 @@
             4: { days: 30, points: {} }
         };
 
-        // 2. PARSING CSV (Bisa menerima baris yang salah satu datanya kosong)
+        // 2. PARSING CSV
         function loadCSVFile(month, fileName) {
             return new Promise((resolve) => {
                 Papa.parse(fileName, {
@@ -284,7 +284,6 @@
                             if(row.Date) {
                                 let day = parseInt(row.Date.split('-')[0]);
                                 
-                                // Deteksi angka walau kolom lain kosong
                                 let eopStr = row.EOP ? row.EOP.replace(/,/g, '') : '';
                                 let eop = parseInt(eopStr);
                                 
@@ -314,7 +313,6 @@
                 loadCSVFile(4, '2026-04.csv')
             ]);
             
-            // Logika mengatur <input> tanggal terakhir otomatis dari file April
             let aprPoints = rawCSVData[4].points;
             let aprKeys = Object.keys(aprPoints).map(Number);
             let inputLastDate = document.getElementById('lastDate');
@@ -335,7 +333,7 @@
 
         window.onload = initDashboard;
 
-        // 4. INTERPOLASI LOGIC (Memisahkan pengecekan stagnasi)
+        // 4. INTERPOLASI LOGIC
         function interpolateData(pointsObj, totalDays) {
             let keys = Object.keys(pointsObj).map(Number).sort((a, b) => a - b);
             
@@ -345,12 +343,10 @@
 
             keys.forEach(k => {
                 let pt = pointsObj[k];
-                // EOP: Hanya catat sebagai aktual jika angkanya berubah dari sebelumnya
                 if (pt.eop !== null && pt.eop !== lastEOP) {
                     validEOPKeys.push(k);
                     lastEOP = pt.eop;
                 }
-                // Churn: Catat semua yang ada angkanya
                 if (pt.churn !== null) {
                     validChurnKeys.push(k);
                 }
@@ -393,13 +389,11 @@
                     }
                 }
 
-                // Label Status Pill
                 let type = 'actual';
-                // Jika tidak ada di CSV, atau kedua angkanya "stuck"/diinterpolasi, maka statusnya Interpolasi
                 if (!keys.includes(i) || (isEopInt && isChurnInt)) {
                     type = 'interpolated';
                 } else if (isEopInt) {
-                    type = 'actual_eop_stuck'; // Tanggal ada datanya, tp EOP nya stagnan
+                    type = 'actual_eop_stuck'; 
                 } else if (isChurnInt) {
                     type = 'actual_churn_stuck';
                 }
@@ -423,7 +417,7 @@
             return 'rate-bad';
         }
 
-        // 5. RENDER DASHBOARD (SUDAH DIKOREKSI BUG KALENDERNYA)
+        // 5. RENDER DASHBOARD DENGAN LOGIKA HISTORIS BARU (LINEAR TETAP)
         function updateDashboard() {
             const monthVal = parseInt(document.getElementById('monthFilter').value);
             const aprControl = document.getElementById('aprControl');
@@ -434,32 +428,49 @@
                 aprControl.style.display = 'flex';
                 let lastDate = parseInt(document.getElementById('lastDate').value);
                 
-                const avg_eop_growth = 260.05618;
-                
-                // DATA KOREKSI: Gunakan nominal drop per hari dari minggu terakhir bulan Maret
-                const mar_24_churn = 13863, mar_31_churn = 13469;
-                const mar_end_daily_drop = (mar_24_churn - mar_31_churn) / 7; // ~56.28 pelanggan/hari
-
                 let filledActuals = interpolateData(rawCSVData[4].points, 30);
                 
-                // Cari data aktual di hari terakhir input
                 let actualDataAtLastDate = filledActuals.find(d => d.day === lastDate) || filledActuals[filledActuals.length-1];
                 let currentActualEOP = actualDataAtLastDate.eop;
                 let currentActualChurn = actualDataAtLastDate.churn;
 
-                let remainingDays = 30 - lastDate;
+                const avg_eop_growth = 260.05618;
+                let targetEOP = currentActualEOP + (avg_eop_growth * (30 - lastDate)); 
 
-                // Hitung Target menggunakan nominal pertumbuhan EOP dan nominal penurunan Churn
-                let targetEOP = currentActualEOP + (avg_eop_growth * remainingDays); 
-                let targetChurn = currentActualChurn - (mar_end_daily_drop * remainingDays);
+                // --- LOGIKA BARU: Proyeksi Churn Berdasarkan Rasio Historis Harian ---
+                let sumRatio = 0;
+                let countRatio = 0;
 
+                // Kumpulkan data rasio dari bulan 1, 2, 3 pada tanggal yang sama
+                [1, 2, 3].forEach(m => {
+                    let histPts = rawCSVData[m].points;
+                    let mDays = rawCSVData[m].days;
+                    
+                    let availableDays = Object.keys(histPts).map(Number).sort((a,b) => a-b);
+                    let closestDay = availableDays.slice().reverse().find(k => k <= lastDate);
+                    
+                    if (closestDay && histPts[mDays] && histPts[closestDay].churn > 0) {
+                        // Rasio = Churn Akhir Bulan / Churn di Tanggal Aktual
+                        let mRatio = histPts[mDays].churn / histPts[closestDay].churn;
+                        sumRatio += mRatio;
+                        countRatio++;
+                    }
+                });
+
+                // Hitung rata-rata rasio (fallback ke 0.85 jika tidak ada data historis)
+                let historical_ratio = (countRatio > 0) ? (sumRatio / countRatio) : 0.85; 
+                let targetChurn = currentActualChurn * historical_ratio;
+
+                // Loop pembentukan garis dengan progresi linear murni
                 for (let i = 1; i <= 30; i++) {
                     let d = filledActuals[i - 1];
                     if (i <= lastDate) {
                         dailyData.push(d);
                     } else {
                         let stepsTotal = 30 - lastDate;
-                        let progress = (i - lastDate) / stepsTotal;
+                        // PROGRESS LINEAR LURUS DIPERTAHANKAN
+                        let progress = (i - lastDate) / stepsTotal; 
+                        
                         dailyData.push({
                             day: i,
                             eop: Math.round(currentActualEOP + ((targetEOP - currentActualEOP) * progress)),
@@ -530,13 +541,11 @@
                 const tr = document.createElement('tr');
                 let pillHTML = '';
                 
-                // Menentukan Status Pill
                 if (d.type === 'actual') {
                     pillHTML = `<span class="status-pill actual"><i class="fa-solid fa-circle"></i> Aktual</span>`;
                 } else if (d.type === 'projection') {
                     pillHTML = `<span class="status-pill projection"><i class="fa-solid fa-circle"></i> Proyeksi</span>`;
                 } else {
-                    // Semua yang terindikasi interpolasi ATAU stuck akan menampilkan pil Interpolasi
                     pillHTML = `<span class="status-pill interpolated"><i class="fa-solid fa-circle"></i> Interpolasi</span>`;
                 }
 
