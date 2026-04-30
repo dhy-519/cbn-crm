@@ -593,7 +593,36 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-                    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1a1f2b', titleColor: '#e8ecf4', bodyColor: '#8892a8', borderColor: '#262d3d', borderWidth: 1, padding: 12, cornerRadius: 8, titleFont: { family: 'Space Grotesk', weight: '600', size: 13 }, bodyFont: { family: 'DM Sans', size: 12 }, displayColors: true, boxWidth: 8, boxHeight: 8, boxPadding: 4, callbacks: { title: (items) => `Tanggal ${items[0].label} ${monthName}`, label: function (context) { let label = context.dataset.label || ''; if (label) label += ': '; if (context.parsed.y !== null) label += new Intl.NumberFormat('id-ID').format(context.parsed.y); return label; } } } },
+                    plugins: { 
+                        legend: { display: false }, 
+                        tooltip: { 
+                            backgroundColor: '#1a1f2b', titleColor: '#e8ecf4', bodyColor: '#8892a8', borderColor: '#262d3d', borderWidth: 1, padding: 12, cornerRadius: 8, titleFont: { family: 'Space Grotesk', weight: '600', size: 13 }, bodyFont: { family: 'DM Sans', size: 12 }, displayColors: true, boxWidth: 8, boxHeight: 8, boxPadding: 4, 
+                            
+                            // 1. Filter: Menyembunyikan dataset "Proyeksi" khusus di titik pertemuan (hari ini)
+                            filter: function(tooltipItem) {
+                                if (tooltipItem.dataIndex === lastActualIndex && tooltipItem.dataset.label.includes('Proyeksi')) {
+                                    return false;
+                                }
+                                return true;
+                            },
+                            
+                            callbacks: { 
+                                title: (items) => `Tanggal ${items[0].label} ${monthName}`, 
+                                label: function (context) { 
+                                    let labelName = context.dataset.label || ''; 
+                                    
+                                    // 2. Mengubah nama label 'Aktual' menjadi 'Terkini' khusus di titik pertemuan (hari ini)
+                                    if (context.dataIndex === lastActualIndex && labelName.includes('Aktual')) {
+                                        labelName = labelName.replace('Aktual', 'Terkini');
+                                    }
+                                    
+                                    if (labelName) labelName += ': '; 
+                                    if (context.parsed.y !== null) labelName += new Intl.NumberFormat('id-ID').format(context.parsed.y); 
+                                    return labelName; 
+                                } 
+                            } 
+                        } 
+                    },
                     scales: {
                         x: { grid: { color: 'rgba(38,45,61,0.5)', drawTicks: false }, ticks: { color: '#5a6478', font: { family: 'DM Sans', size: 11 }, padding: 8, maxRotation: 0, callback: function(val, idx) { return (idx % 5 === 0 || idx === data.length - 1) ? this.getLabelForValue(val) : ''; } }, border: { display: false } },
                         y: { position: 'left', grid: { color: 'rgba(38,45,61,0.4)', drawTicks: false }, ticks: { color: '#5a6478', font: { family: 'Space Grotesk', size: 11 }, padding: 10, callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v }, border: { display: false } },
