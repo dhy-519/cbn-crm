@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        /* ========== DARK MODE (Default) ========== */
+        /* ================= DARK MODE (DEFAULT) ================= */
         :root {
             --bg-root: #0c0f14;
             --bg-sidebar: #10141b;
@@ -23,6 +23,7 @@
             --text-primary: #e8ecf4;
             --text-secondary: #8892a8;
             --text-muted: #5a6478;
+            
             --accent: #00d4aa;
             --accent-dim: rgba(0, 212, 170, 0.12);
             --accent-glow: rgba(0, 212, 170, 0.25);
@@ -34,243 +35,76 @@
             --blue-dim: rgba(79, 172, 254, 0.12);
             --green: #00d4aa;
             --green-dim: rgba(0, 212, 170, 0.12);
+            
             --radius: 10px;
             --radius-lg: 14px;
             --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 6px 16px rgba(0,0,0,0.2);
-            --chart-grid: rgba(38,45,61,0.5);
-            --chart-grid-subtle: rgba(38,45,61,0.4);
-            --tooltip-bg: #1a1f2b;
-            --tooltip-border: #262d3d;
-            --tooltip-title: #e8ecf4;
-            --tooltip-body: #8892a8;
-            --toggle-bg: #1e2430;
-            --toggle-border: #2a3248;
-            --toggle-icon-color: #ffb347;
-            --intp-bg: rgba(138,150,180,0.15);
-            --intp-color: #8892a8;
-            --table-hover: #1f2535;
-            --table-border-sub: rgba(38,45,61,0.5);
-            --scrollbar-thumb: #2a3248;
-            --scrollbar-hover: #5a6478;
+            --chart-point-bg: #0c0f14;
         }
 
-        /* ========== LIGHT MODE ========== */
-        [data-theme="light"] {
-            --bg-root: #f0f2f5;
+        /* ================= LIGHT MODE ================= */
+        body.light-theme {
+            --bg-root: #eef2f6;
             --bg-sidebar: #ffffff;
-            --bg-main: #f5f7fa;
+            --bg-main: #f4f7fb;
             --bg-card: #ffffff;
-            --bg-card-hover: #f8f9fb;
-            --bg-input: #f0f2f5;
-            --border: #e2e6ed;
-            --border-light: #d5dae3;
-            --text-primary: #1a1d26;
-            --text-secondary: #5c6478;
-            --text-muted: #8c93a6;
-            --accent: #00a885;
-            --accent-dim: rgba(0, 168, 133, 0.08);
-            --accent-glow: rgba(0, 168, 133, 0.15);
-            --red: #e0435a;
-            --red-dim: rgba(224, 67, 90, 0.08);
-            --amber: #e09520;
-            --amber-dim: rgba(224, 149, 32, 0.08);
-            --blue: #2b8fd9;
-            --blue-dim: rgba(43, 143, 217, 0.08);
-            --green: #00a885;
-            --green-dim: rgba(0, 168, 133, 0.08);
-            --radius: 10px;
-            --radius-lg: 14px;
-            --shadow-card: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06);
-            --chart-grid: rgba(0,0,0,0.06);
-            --chart-grid-subtle: rgba(0,0,0,0.04);
-            --tooltip-bg: #ffffff;
-            --tooltip-border: #e2e6ed;
-            --tooltip-title: #1a1d26;
-            --tooltip-body: #5c6478;
-            --toggle-bg: #eef0f4;
-            --toggle-border: #d5dae3;
-            --toggle-icon-color: #e09520;
-            --intp-bg: rgba(0,0,0,0.05);
-            --intp-color: #8c93a6;
-            --table-hover: #f5f7fa;
-            --table-border-sub: rgba(0,0,0,0.05);
-            --scrollbar-thumb: #cdd1da;
-            --scrollbar-hover: #a0a7b8;
+            --bg-card-hover: #f8fafc;
+            --bg-input: #ffffff;
+            --border: #e2e8f0;
+            --border-light: #cbd5e1;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            
+            --shadow-card: 0 2px 4px rgba(0,0,0,0.03), 0 8px 16px rgba(0,0,0,0.03);
+            --chart-point-bg: #ffffff;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg-root);
-            color: var(--text-primary);
-            display: flex;
-            min-height: 100vh;
-            overflow-x: hidden;
-            transition: background 0.35s ease, color 0.35s ease;
-        }
-
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg-root); color: var(--text-primary); display: flex; min-height: 100vh; overflow-x: hidden; transition: background-color 0.3s, color 0.3s; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
+        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-        .sidebar {
-            width: 250px;
-            min-height: 100vh;
-            background: var(--bg-sidebar);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            transition: background 0.35s ease, border-color 0.35s ease;
-        }
-        .sidebar-brand {
-            padding: 24px 20px 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: border-color 0.35s ease;
-        }
-        .sidebar-brand .logo-icon {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, var(--accent), #00a885);
-            border-radius: 9px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; color: #0c0f14; font-weight: 700;
-            box-shadow: 0 0 20px var(--accent-glow);
-            transition: box-shadow 0.35s ease;
-        }
-        .sidebar-brand h1 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 15px; font-weight: 600;
-            color: var(--text-primary); line-height: 1.2;
-            transition: color 0.35s ease;
-        }
-        .sidebar-brand span { font-size: 11px; color: var(--text-muted); font-weight: 400; transition: color 0.35s ease; }
+        .sidebar { width: 250px; min-height: 100vh; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; transition: background-color 0.3s, border-color 0.3s; }
+        .sidebar-brand { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; transition: border-color 0.3s; }
+        .sidebar-brand .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #00a885); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #ffffff; font-weight: 700; box-shadow: 0 0 20px var(--accent-glow); }
+        .sidebar-brand h1 { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
+        .sidebar-brand span { font-size: 11px; color: var(--text-muted); font-weight: 400; }
         .sidebar-nav { padding: 16px 12px; flex: 1; }
-        .nav-label {
-            font-size: 10px; font-weight: 600;
-            text-transform: uppercase; letter-spacing: 1.2px;
-            color: var(--text-muted); padding: 8px 12px 6px; margin-top: 8px;
-            transition: color 0.35s ease;
-        }
-        .nav-item {
-            display: flex; align-items: center; gap: 11px;
-            padding: 10px 12px; border-radius: 8px;
-            font-size: 13.5px; font-weight: 400;
-            color: var(--text-secondary); cursor: pointer;
-            transition: all 0.2s;
-        }
+        .nav-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-muted); padding: 8px 12px 6px; margin-top: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 8px; font-size: 13.5px; font-weight: 400; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
         .nav-item i { width: 18px; text-align: center; font-size: 14px; }
         .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
         .nav-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 500; }
         .nav-item.active i { color: var(--accent); }
-        .sidebar-footer {
-            padding: 16px 20px;
-            border-top: 1px solid var(--border);
-            font-size: 11px; color: var(--text-muted);
-            transition: border-color 0.35s ease, color 0.35s ease;
-        }
+        .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-muted); transition: border-color 0.3s; }
 
         .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-        .topbar {
-            padding: 18px 32px;
-            border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between;
-            background: var(--bg-main);
-            position: sticky; top: 0; z-index: 50;
-            backdrop-filter: blur(12px);
-            transition: background 0.35s ease, border-color 0.35s ease;
-        }
-        .topbar-left h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 20px; font-weight: 600;
-            color: var(--text-primary);
-            transition: color 0.35s ease;
-        }
-        .topbar-left p { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; transition: color 0.35s ease; }
+        .topbar { padding: 18px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-main); position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); transition: background-color 0.3s, border-color 0.3s; }
+        .topbar-left h2 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; color: var(--text-primary); }
+        .topbar-left p { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
         .topbar-right { display: flex; align-items: center; gap: 12px; }
-        .topbar-badge {
-            display: flex; align-items: center; gap: 6px;
-            padding: 6px 14px; border-radius: 20px;
-            font-size: 12px; font-weight: 500;
-            background: var(--accent-dim); color: var(--accent);
-            border: 1px solid rgba(0,212,170,0.15);
-            transition: all 0.35s ease;
-        }
-        .topbar-time { font-size: 12px; color: var(--text-muted); transition: color 0.35s ease; }
-
-        /* ========== TOMBOL TOGGLE THEME ========== */
-        .theme-toggle {
-            display: flex; align-items: center; gap: 8px;
-            padding: 0; border: 1px solid var(--toggle-border);
-            border-radius: 24px; cursor: pointer;
-            background: var(--toggle-bg);
-            transition: all 0.35s ease;
-            overflow: hidden;
-            height: 36px;
-            position: relative;
-        }
-        .theme-toggle:hover { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
-        .theme-toggle-btn {
-            display: flex; align-items: center; gap: 6px;
-            padding: 0 14px; height: 100%;
-            font-size: 12px; font-weight: 500;
-            font-family: 'DM Sans', sans-serif;
-            color: var(--text-muted);
-            background: transparent; border: none;
-            cursor: pointer; transition: all 0.3s ease;
-            white-space: nowrap;
-            position: relative; z-index: 2;
-        }
-        .theme-toggle-btn.active {
-            color: var(--bg-root);
-            font-weight: 600;
-        }
-        .theme-toggle-btn i { font-size: 13px; transition: color 0.3s ease; }
-        .theme-toggle-btn.active i { color: inherit; }
-        .theme-slider {
-            position: absolute;
-            top: 2px; bottom: 2px;
-            width: calc(50% - 2px);
-            border-radius: 20px;
-            background: var(--accent);
-            transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1;
-            left: 2px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-        }
-        [data-theme="light"] .theme-slider { left: calc(50%); }
+        .topbar-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,212,170,0.15); }
+        .topbar-time { font-size: 12px; color: var(--text-muted); }
+        
+        /* Tombol Theme */
+        .theme-btn { background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .theme-btn:hover { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent-dim); }
 
         .content { padding: 28px 32px 40px; flex: 1; }
 
-        .controls-bar {
-            display: flex; align-items: center; gap: 16px;
-            margin-bottom: 24px; flex-wrap: wrap;
-        }
+        .controls-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
         .ctrl-group { display: flex; align-items: center; gap: 8px; }
-        .ctrl-group label { font-size: 12px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; transition: color 0.35s ease; }
-        .ctrl-group select, .ctrl-group input {
-            background: var(--bg-input); border: 1px solid var(--border-light);
-            color: var(--text-primary); padding: 8px 14px; border-radius: 8px;
-            font-size: 13px; font-family: inherit; outline: none;
-            transition: all 0.2s; min-width: 140px;
-        }
+        .ctrl-group label { font-size: 12px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; }
+        .ctrl-group select, .ctrl-group input { background: var(--bg-input); border: 1px solid var(--border-light); color: var(--text-primary); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; transition: all 0.2s; min-width: 140px; }
         .ctrl-group select:focus, .ctrl-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
-        .ctrl-separator { width: 1px; height: 28px; background: var(--border); transition: background 0.35s ease; }
+        .ctrl-separator { width: 1px; height: 28px; background: var(--border); }
 
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
-        .kpi-card {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: var(--radius-lg); padding: 20px;
-            position: relative; overflow: hidden;
-            transition: all 0.35s ease;
-        }
+        .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; position: relative; overflow: hidden; transition: all 0.25s; }
         .kpi-card:hover { border-color: var(--border-light); background: var(--bg-card-hover); transform: translateY(-2px); box-shadow: var(--shadow-card); }
         .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
         .kpi-card[data-color="blue"]::before { background: linear-gradient(90deg, var(--blue), transparent); }
@@ -278,100 +112,59 @@
         .kpi-card[data-color="amber"]::before { background: linear-gradient(90deg, var(--amber), transparent); }
         .kpi-card[data-color="green"]::before { background: linear-gradient(90deg, var(--green), transparent); }
         .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-        .kpi-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); line-height: 1.3; transition: color 0.35s ease; }
-        .kpi-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.35s ease; }
+        .kpi-label { font-size: 12px; font-weight: 500; color: var(--text-secondary); line-height: 1.3; }
+        .kpi-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
         .kpi-icon.blue { background: var(--blue-dim); color: var(--blue); }
         .kpi-icon.red { background: var(--red-dim); color: var(--red); }
         .kpi-icon.amber { background: var(--amber-dim); color: var(--amber); }
         .kpi-icon.green { background: var(--green-dim); color: var(--green); }
-        .kpi-value {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 26px; font-weight: 700;
-            color: var(--text-primary); line-height: 1;
-            transition: color 0.35s ease;
-        }
-        .kpi-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 5px; transition: color 0.35s ease; }
+        .kpi-value { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+        .kpi-sub { font-size: 11.5px; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 5px; }
         .kpi-sub .up { color: var(--accent); }
         .kpi-sub .down { color: var(--red); }
 
-        .chart-section {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: var(--radius-lg); padding: 24px; margin-bottom: 28px;
-            transition: all 0.35s ease;
-        }
+        .chart-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 28px; transition: background-color 0.3s, border-color 0.3s; }
         .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .chart-title { font-size: 14px; font-weight: 600; color: var(--text-primary); transition: color 0.35s ease; }
+        .chart-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
         .chart-legend { display: flex; gap: 16px; }
-        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-secondary); transition: color 0.35s ease; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text-secondary); }
         .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
         .legend-dot.dashed { background: transparent !important; border: 2px dashed; width: 10px; height: 0; border-radius: 0; }
         .chart-container { position: relative; height: 360px; width: 100%; }
 
-        .table-section {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: var(--radius-lg); overflow: hidden;
-            transition: all 0.35s ease;
-        }
-        .table-header {
-            padding: 18px 24px; border-bottom: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-between;
-            transition: border-color 0.35s ease;
-        }
-        .table-title { font-size: 14px; font-weight: 600; color: var(--text-primary); transition: color 0.35s ease; }
-        .table-count { font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 4px 10px; border-radius: 12px; border: 1px solid var(--border); transition: all 0.35s ease; }
+        .table-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: background-color 0.3s, border-color 0.3s; }
+        .table-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+        .table-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+        .table-count { font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 4px 10px; border-radius: 12px; border: 1px solid var(--border); }
         .table-wrapper { max-height: 420px; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        thead th {
-            background: var(--bg-input); color: var(--text-secondary);
-            font-size: 11px; font-weight: 600; text-transform: uppercase;
-            letter-spacing: 0.6px; padding: 12px 20px; text-align: left;
-            position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border);
-            transition: all 0.35s ease;
-        }
+        thead th { background: var(--bg-input); color: var(--text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 20px; text-align: left; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); transition: background-color 0.3s; }
         thead th:first-child { padding-left: 24px; }
         thead th:last-child { text-align: right; padding-right: 24px; }
-        tbody td {
-            padding: 11px 20px; border-bottom: 1px solid var(--table-border-sub);
-            color: var(--text-primary); font-variant-numeric: tabular-nums;
-            transition: color 0.35s ease, border-color 0.35s ease;
-        }
+        tbody td { padding: 11px 20px; border-bottom: 1px solid var(--border); color: var(--text-primary); font-variant-numeric: tabular-nums; transition: border-color 0.3s; }
         tbody td:first-child { padding-left: 24px; }
         tbody td:last-child { text-align: right; padding-right: 24px; font-weight: 600; }
-        tbody tr { transition: background 0.15s ease; }
-        tbody tr:hover { background: var(--table-hover); }
+        tbody tr:hover { background: var(--bg-card-hover); }
         tbody tr:last-child td { border-bottom: none; }
         .td-date { font-weight: 500; }
         .td-num { font-family: 'Space Grotesk', sans-serif; font-weight: 500; }
-
-        .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; transition: all 0.35s ease; }
+        
+        .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
         .status-pill.actual { background: var(--blue-dim); color: var(--blue); }
-        .status-pill.interpolated { background: rgba(138,150,180,0.1); color: var(--text-secondary); }
+        .status-pill.interpolated { background: var(--border); color: var(--text-secondary); }
         .status-pill.projection { background: var(--amber-dim); color: var(--amber); }
-
-        .badge-intp {
-            font-size: 9px; background: var(--intp-bg); color: var(--intp-color);
-            padding: 2px 5px; border-radius: 4px; margin-left: 6px;
-            vertical-align: middle; letter-spacing: 0.5px;
-            font-family: 'DM Sans', sans-serif; font-weight: 600;
-            transition: all 0.35s ease;
-        }
-
+        
+        .badge-intp { font-size: 9px; background: var(--border-light); color: var(--text-secondary); padding: 2px 5px; border-radius: 4px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.5px; font-family: 'DM Sans', sans-serif; font-weight: 600;}
+        
         .rate-cell { font-family: 'Space Grotesk', sans-serif; }
         .rate-good { color: var(--accent); }
         .rate-warn { color: var(--amber); }
         .rate-bad { color: var(--red); }
 
         @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 860px) {
-            .sidebar { display: none; }
-            .content { padding: 20px 16px; }
-            .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-            .controls-bar { flex-direction: column; align-items: stretch; }
-            .ctrl-separator { display: none; }
-            .chart-legend { display: none; }
-        }
+        @media (max-width: 860px) { .sidebar { display: none; } .content { padding: 20px 16px; } .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; } .controls-bar { flex-direction: column; align-items: stretch; } .ctrl-separator { display: none; } }
         @media (max-width: 540px) { .kpi-grid { grid-template-columns: 1fr; } }
-
+        
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .kpi-card, .chart-section, .table-section { animation: fadeUp 0.45s ease both; }
         .kpi-card:nth-child(2) { animation-delay: 0.06s; }
@@ -404,17 +197,9 @@
                 <p>Periode data aktual CSV &mdash; Januari s/d Mei 2026</p>
             </div>
             <div class="topbar-right">
-                <!-- ========== TOMBOL TOGGLE THEME ========== -->
-                <div class="theme-toggle" id="themeToggle" role="button" tabindex="0" aria-label="Toggle theme">
-                    <div class="theme-slider" id="themeSlider"></div>
-                    <button class="theme-toggle-btn active" id="btnDark" onclick="setTheme('dark')" type="button">
-                        <i class="fa-solid fa-moon"></i> Dark
-                    </button>
-                    <button class="theme-toggle-btn" id="btnLight" onclick="setTheme('light')" type="button">
-                        <i class="fa-solid fa-sun"></i> Light
-                    </button>
-                </div>
-
+                <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle Tema">
+                    <i class="fa-solid fa-sun"></i>
+                </button>
                 <div class="topbar-badge"><i class="fa-solid fa-circle"></i> Internal Data</div>
                 <span class="topbar-time" id="liveTime"></span>
             </div>
@@ -499,50 +284,6 @@
     </div>
 
     <script>
-        /* ========== THEME TOGGLE LOGIC ========== */
-        let currentTheme = 'dark';
-
-        function setTheme(theme) {
-            currentTheme = theme;
-            document.documentElement.setAttribute('data-theme', theme);
-
-            const btnDark = document.getElementById('btnDark');
-            const btnLight = document.getElementById('btnLight');
-
-            if (theme === 'dark') {
-                btnDark.classList.add('active');
-                btnLight.classList.remove('active');
-            } else {
-                btnLight.classList.add('active');
-                btnDark.classList.remove('active');
-            }
-
-            // Simpan preferensi ke localStorage
-            localStorage.setItem('churnDashTheme', theme);
-
-            // Re-render chart agar warna grid, tooltip, dll ikut berubah
-            if (typeof updateDashboard === 'function') {
-                updateDashboard();
-            }
-        }
-
-        // Muat preferensi tema dari localStorage saat halaman dibuka
-        (function loadSavedTheme() {
-            const saved = localStorage.getItem('churnDashTheme');
-            if (saved === 'light') {
-                setTheme('light');
-            }
-        })();
-
-        // Keyboard accessibility untuk toggle
-        document.getElementById('themeToggle').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
-            }
-        });
-
-        /* ========== CLOCK ========== */
         function updateClock() {
             const now = new Date();
             document.getElementById('liveTime').textContent = now.toLocaleString('id-ID', {
@@ -552,7 +293,37 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        /* ========== DATA & CHART LOGIC ========== */
+        // --- SISTEM TEMA ---
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            
+            // Simpan preferensi pengguna
+            localStorage.setItem('dashboard_theme', isLight ? 'light' : 'dark');
+            
+            // Ubah ikon tombol
+            const btnIcon = document.querySelector('#themeToggle i');
+            if(isLight) {
+                btnIcon.classList.remove('fa-sun');
+                btnIcon.classList.add('fa-moon');
+            } else {
+                btnIcon.classList.remove('fa-moon');
+                btnIcon.classList.add('fa-sun');
+            }
+            
+            // Render ulang grafik agar warna grid/teks menyesuaikan tema
+            if(currentChart) {
+                updateDashboard();
+            }
+        }
+
+        // Cek preferensi tema saat halaman dimuat
+        if(localStorage.getItem('dashboard_theme') === 'light') {
+            document.body.classList.add('light-theme');
+            document.querySelector('#themeToggle i').classList.remove('fa-sun');
+            document.querySelector('#themeToggle i').classList.add('fa-moon');
+        }
+
         let currentChart = null;
 
         let rawCSVData = {
@@ -573,14 +344,17 @@
                         results.data.forEach(row => {
                             if(row.Date) {
                                 let day = parseInt(row.Date.split('-')[0]);
+                                
                                 let eopStr = row.EOP ? row.EOP.replace(/,/g, '') : '';
                                 let eop = parseInt(eopStr);
+                                
                                 let churnStr = row["Predict Churn Sub"] ? row["Predict Churn Sub"].replace(/,/g, '') : '';
                                 let churn = parseInt(churnStr);
+                                
                                 if(!isNaN(day) && (!isNaN(eop) || !isNaN(churn))) {
-                                    rawCSVData[month].points[day] = {
-                                        eop: !isNaN(eop) ? eop : null,
-                                        churn: !isNaN(churn) ? churn : null
+                                    rawCSVData[month].points[day] = { 
+                                        eop: !isNaN(eop) ? eop : null, 
+                                        churn: !isNaN(churn) ? churn : null 
                                     };
                                 }
                             }
@@ -599,6 +373,7 @@
                 loadCSVFile(4, '2026-04.csv'),
                 loadCSVFile(5, '2026-05.csv')
             ]);
+            
             handleMonthChange();
         }
 
@@ -610,7 +385,7 @@
             let currentKeys = Object.keys(currentPoints).map(Number);
             let inputLastDate = document.getElementById('lastDate');
             let maxDays = rawCSVData[monthVal].days;
-
+            
             if (currentKeys.length > 0) {
                 let latestDay = Math.max(...currentKeys);
                 inputLastDate.min = 1;
@@ -621,11 +396,13 @@
                 inputLastDate.max = maxDays;
                 inputLastDate.value = 1;
             }
+            
             updateDashboard();
         }
 
         function interpolateData(pointsObj, totalDays) {
             let keys = Object.keys(pointsObj).map(Number).sort((a, b) => a - b);
+            
             let validEOPKeys = [];
             let validChurnKeys = [];
             let lastEOP = -1;
@@ -680,7 +457,7 @@
                 if (!keys.includes(i) || (isEopInt && isChurnInt)) {
                     type = 'interpolated';
                 } else if (isEopInt) {
-                    type = 'actual_eop_stuck';
+                    type = 'actual_eop_stuck'; 
                 } else if (isChurnInt) {
                     type = 'actual_churn_stuck';
                 }
@@ -704,16 +481,11 @@
             return 'rate-bad';
         }
 
-        /* Helper: baca CSS variable saat ini */
-        function getCSSVar(name) {
-            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-        }
-
         function updateDashboard() {
             const monthVal = parseInt(document.getElementById('monthFilter').value);
             let monthName = ["", "Januari", "Februari", "Maret", "April", "Mei"][monthVal];
             let totalDays = rawCSVData[monthVal].days;
-
+            
             let lastDateInput = document.getElementById('lastDate');
             let lastDate = parseInt(lastDateInput.value);
 
@@ -724,13 +496,13 @@
 
             let dailyData = [];
             let filledActuals = interpolateData(rawCSVData[monthVal].points, totalDays);
-
+            
             let actualDataAtLastDate = filledActuals.find(d => d.day === lastDate) || filledActuals[filledActuals.length-1];
             let currentActualEOP = actualDataAtLastDate.eop;
             let currentActualChurn = actualDataAtLastDate.churn;
 
             const avg_eop_growth = 260.05618;
-            let targetEOP = currentActualEOP + (avg_eop_growth * (totalDays - lastDate));
+            let targetEOP = currentActualEOP + (avg_eop_growth * (totalDays - lastDate)); 
 
             let sumRatio = 0;
             let countRatio = 0;
@@ -738,8 +510,10 @@
             for (let m = 1; m < monthVal; m++) {
                 let histPts = rawCSVData[m].points;
                 let mDays = rawCSVData[m].days;
+                
                 let availableDays = Object.keys(histPts).map(Number).sort((a,b) => a-b);
                 let closestDay = availableDays.slice().reverse().find(k => k <= lastDate);
+                
                 if (closestDay && histPts[mDays] && histPts[closestDay].churn > 0) {
                     let mRatio = histPts[mDays].churn / histPts[closestDay].churn;
                     sumRatio += mRatio;
@@ -747,16 +521,17 @@
                 }
             }
 
-            let historical_ratio = (countRatio > 0) ? (sumRatio / countRatio) : 0.85;
+            let historical_ratio = (countRatio > 0) ? (sumRatio / countRatio) : 0.85; 
             let targetChurn = currentActualChurn * historical_ratio;
 
             for (let i = 1; i <= totalDays; i++) {
                 let d = filledActuals[i - 1];
                 if (i <= lastDate) {
-                    dailyData.push(d);
+                    dailyData.push(d); 
                 } else {
                     let stepsTotal = totalDays - lastDate;
-                    let progress = (i - lastDate) / stepsTotal;
+                    let progress = (i - lastDate) / stepsTotal; 
+                    
                     dailyData.push({
                         day: i,
                         eop: Math.round(currentActualEOP + ((targetEOP - currentActualEOP) * progress)),
@@ -779,6 +554,7 @@
                 document.getElementById('lbl-churn').innerText = "Proyeksi Churn Akhir Bulan";
                 document.getElementById('lbl-rate-current').innerText = `Rate Aktual (Tgl ${lastDate})`;
                 document.getElementById('lbl-rate').innerText = `Rate Proyeksi (Tgl ${totalDays})`;
+
                 document.getElementById('sub-rate-current').innerHTML = `<i class="fa-solid fa-circle-info"></i> Observasi per ${lastDate} ${monthName}`;
                 document.getElementById('sub-rate').innerHTML = `<i class="fa-solid fa-chart-line"></i> Estimasi per ${totalDays} ${monthName}`;
             } else {
@@ -786,6 +562,7 @@
                 document.getElementById('lbl-churn').innerText = "Total Churn Akhir Bulan";
                 document.getElementById('lbl-rate-current').innerText = `Rate Aktual (Tgl ${lastDate})`;
                 document.getElementById('lbl-rate').innerText = "Rate Akhir Bulan";
+
                 document.getElementById('sub-rate-current').innerHTML = `<i class="fa-solid fa-circle-info"></i> Penutupan Data Aktual`;
                 document.getElementById('sub-rate').innerHTML = `<i class="fa-solid fa-check-double"></i> Realisasi Akhir Bulan`;
             }
@@ -803,10 +580,11 @@
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
             document.getElementById('tableCount').textContent = dailyData.length + ' baris';
-
+            
             dailyData.forEach(d => {
                 const tr = document.createElement('tr');
                 let pillHTML = '';
+                
                 if (d.type === 'actual') {
                     pillHTML = `<span class="status-pill actual"><i class="fa-solid fa-circle"></i> Aktual</span>`;
                 } else if (d.type === 'projection') {
@@ -814,6 +592,7 @@
                 } else {
                     pillHTML = `<span class="status-pill interpolated"><i class="fa-solid fa-circle"></i> Interpolasi</span>`;
                 }
+
                 tr.innerHTML = `
                     <td class="td-date">${d.day} ${monthName}</td>
                     <td>${pillHTML}</td>
@@ -837,18 +616,6 @@
             const ctx = document.getElementById('dailyChart').getContext('2d');
             if (currentChart) currentChart.destroy();
 
-            // Baca warna dari CSS variable agar otomatis mengikuti tema
-            const colorRed = getCSSVar('--red');
-            const colorAccent = getCSSVar('--accent');
-            const colorGrid = getCSSVar('--chart-grid');
-            const colorGridSub = getCSSVar('--chart-grid-subtle');
-            const colorTick = getCSSVar('--text-muted');
-            const colorTooltipBg = getCSSVar('--tooltip-bg');
-            const colorTooltipBorder = getCSSVar('--tooltip-border');
-            const colorTooltipTitle = getCSSVar('--tooltip-title');
-            const colorTooltipBody = getCSSVar('--tooltip-body');
-            const colorPointBorder = getCSSVar('--bg-root');
-
             const labels = data.map(d => d.day);
             let lastActualIndex = data.filter(d => d.type !== 'projection').length - 1;
 
@@ -857,96 +624,66 @@
             let eopActual = data.map((d, i) => i <= lastActualIndex ? d.eop : null);
             let eopProj = data.map((d, i) => i >= lastActualIndex ? d.eop : null);
 
+            // Deteksi apakah sedang dalam mode terang untuk menyesuaikan warna komponen chart
+            const isLight = document.body.classList.contains('light-theme');
+            const gridColor = isLight ? 'rgba(226, 232, 240, 0.8)' : 'rgba(38,45,61,0.5)';
+            const tickColor = isLight ? '#64748b' : '#5a6478';
+            const tooltipBg = isLight ? '#ffffff' : '#1a1f2b';
+            const tooltipTitleColor = isLight ? '#1e293b' : '#e8ecf4';
+            const tooltipBodyColor = isLight ? '#475569' : '#8892a8';
+            const tooltipBorderColor = isLight ? '#cbd5e1' : '#262d3d';
+            const pointBg = isLight ? '#ffffff' : '#0c0f14';
+
             currentChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [
-                        {
-                            label: 'Aktual: Churn', data: churnActual,
-                            borderColor: colorRed, backgroundColor: colorRed + '14',
-                            borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5,
-                            pointBackgroundColor: colorRed, pointBorderColor: colorPointBorder, pointBorderWidth: 2,
-                            yAxisID: 'y', fill: true, tension: 0.35
-                        },
-                        {
-                            label: 'Proyeksi: Churn', data: churnProj,
-                            borderColor: colorRed, borderWidth: 2, borderDash: [6, 4],
-                            pointRadius: 0, pointHoverRadius: 4,
-                            pointBackgroundColor: colorRed, pointBorderColor: colorPointBorder, pointBorderWidth: 2,
-                            yAxisID: 'y', fill: false, tension: 0.35
-                        },
-                        {
-                            label: 'Aktual: EOP', data: eopActual,
-                            borderColor: colorAccent, backgroundColor: colorAccent + '10',
-                            borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5,
-                            pointBackgroundColor: colorAccent, pointBorderColor: colorPointBorder, pointBorderWidth: 2,
-                            yAxisID: 'y1', fill: true, tension: 0.35
-                        },
-                        {
-                            label: 'Proyeksi: EOP', data: eopProj,
-                            borderColor: colorAccent, borderWidth: 2, borderDash: [6, 4],
-                            pointRadius: 0, pointHoverRadius: 4,
-                            pointBackgroundColor: colorAccent, pointBorderColor: colorPointBorder, pointBorderWidth: 2,
-                            yAxisID: 'y1', fill: false, tension: 0.35
-                        }
+                        { label: 'Aktual: Churn', data: churnActual, borderColor: '#ff5c72', backgroundColor: 'rgba(255, 92, 114, 0.08)', borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, pointBackgroundColor: '#ff5c72', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y', fill: true, tension: 0.35 },
+                        { label: 'Proyeksi: Churn', data: churnProj, borderColor: '#ff5c72', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: '#ff5c72', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y', fill: false, tension: 0.35 },
+                        { label: 'Aktual: EOP', data: eopActual, borderColor: '#00d4aa', backgroundColor: 'rgba(0, 212, 170, 0.06)', borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, pointBackgroundColor: '#00d4aa', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y1', fill: true, tension: 0.35 },
+                        { label: 'Proyeksi: EOP', data: eopProj, borderColor: '#00d4aa', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: '#00d4aa', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y1', fill: false, tension: 0.35 }
                     ]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: colorTooltipBg, titleColor: colorTooltipTitle,
-                            bodyColor: colorTooltipBody, borderColor: colorTooltipBorder,
-                            borderWidth: 1, padding: 12, cornerRadius: 8,
-                            titleFont: { family: 'Space Grotesk', weight: '600', size: 13 },
-                            bodyFont: { family: 'DM Sans', size: 12 },
-                            displayColors: true, boxWidth: 8, boxHeight: 8, boxPadding: 4,
+                    responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                    plugins: { 
+                        legend: { display: false }, 
+                        tooltip: { 
+                            backgroundColor: tooltipBg, titleColor: tooltipTitleColor, bodyColor: tooltipBodyColor, borderColor: tooltipBorderColor, borderWidth: 1, padding: 12, cornerRadius: 8, titleFont: { family: 'Space Grotesk', weight: '600', size: 13 }, bodyFont: { family: 'DM Sans', size: 12 }, displayColors: true, boxWidth: 8, boxHeight: 8, boxPadding: 4, 
+                            
                             filter: function(tooltipItem) {
-                                if (tooltipItem.dataIndex === lastActualIndex && tooltipItem.dataset.label.includes('Proyeksi')) return false;
+                                if (tooltipItem.dataIndex === lastActualIndex && tooltipItem.dataset.label.includes('Proyeksi')) {
+                                    return false;
+                                }
                                 return true;
                             },
-                            callbacks: {
-                                title: (items) => `Tanggal ${items[0].label} ${monthName}`,
-                                label: function(context) {
-                                    let labelName = context.dataset.label || '';
+                            
+                            callbacks: { 
+                                title: (items) => `Tanggal ${items[0].label} ${monthName}`, 
+                                label: function (context) { 
+                                    let labelName = context.dataset.label || ''; 
+                                    
                                     if (context.dataIndex === lastActualIndex && labelName.includes('Aktual')) {
                                         labelName = labelName.replace('Aktual', 'Terkini');
                                     }
-                                    if (labelName) labelName += ': ';
-                                    if (context.parsed.y !== null) labelName += new Intl.NumberFormat('id-ID').format(context.parsed.y);
-                                    return labelName;
-                                }
-                            }
-                        }
+                                    
+                                    if (labelName) labelName += ': '; 
+                                    if (context.parsed.y !== null) labelName += new Intl.NumberFormat('id-ID').format(context.parsed.y); 
+                                    return labelName; 
+                                } 
+                            } 
+                        } 
                     },
                     scales: {
-                        x: {
-                            grid: { color: colorGrid, drawTicks: false },
-                            ticks: {
-                                color: colorTick, font: { family: 'DM Sans', size: 11 }, padding: 8, maxRotation: 0,
-                                callback: function(val, idx) { return (idx % 5 === 0 || idx === data.length - 1) ? this.getLabelForValue(val) : ''; }
-                            },
-                            border: { display: false }
-                        },
-                        y: {
-                            position: 'left',
-                            grid: { color: colorGrid, drawTicks: false },
-                            ticks: { color: colorTick, font: { family: 'Space Grotesk', size: 11 }, padding: 10, callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v },
-                            border: { display: false }
-                        },
-                        y1: {
-                            position: 'right',
-                            grid: { drawOnChartArea: false, drawTicks: false },
-                            ticks: { color: colorTick, font: { family: 'Space Grotesk', size: 11 }, padding: 10, callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v },
-                            border: { display: false }
-                        }
+                        x: { grid: { color: gridColor, drawTicks: false }, ticks: { color: tickColor, font: { family: 'DM Sans', size: 11 }, padding: 8, maxRotation: 0, callback: function(val, idx) { return (idx % 5 === 0 || idx === data.length - 1) ? this.getLabelForValue(val) : ''; } }, border: { display: false } },
+                        y: { position: 'left', grid: { color: gridColor, drawTicks: false }, ticks: { color: tickColor, font: { family: 'Space Grotesk', size: 11 }, padding: 10, callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v }, border: { display: false } },
+                        y1: { position: 'right', grid: { drawOnChartArea: false, drawTicks: false }, ticks: { color: tickColor, font: { family: 'Space Grotesk', size: 11 }, padding: 10, callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v }, border: { display: false } }
                     }
                 }
             });
         }
+
     </script>
 </body>
 </html>
