@@ -179,7 +179,7 @@
             <div class="controls-bar">
                 <div class="ctrl-group">
                     <label for="monthFilter"><i class="fa-regular fa-calendar" style="margin-right:4px;"></i> Periode</label>
-                    <select id="monthFilter" onchange="updateDashboard()">
+                    <select id="monthFilter" onchange="handleMonthChange()">
                         <option value="5" selected>Mei 2026</option>
                         <option value="4">April 2026</option>
                         <option value="3">Maret 2026</option>
@@ -188,7 +188,8 @@
                     </select>
                 </div>
                 <div class="ctrl-separator"></div>
-                <div class="ctrl-group" id="aprControl">
+                <!-- Kontrol Tanggal kini selalu ditampilkan -->
+                <div class="ctrl-group" id="dateControl">
                     <label for="lastDate"><i class="fa-solid fa-crosshairs" style="margin-right:4px;"></i> Tgl Aktual Terakhir</label>
                     <input type="number" id="lastDate" onchange="updateDashboard()">
                 </div>
@@ -265,7 +266,6 @@
 
         let currentChart = null;
 
-        // 1. STRUKTUR DASAR (DITAMBAHKAN BULAN 5)
         let rawCSVData = {
             1: { days: 31, points: {} },
             2: { days: 28, points: {} },
@@ -274,7 +274,6 @@
             5: { days: 31, points: {} }
         };
 
-        // 2. PARSING CSV
         function loadCSVFile(month, fileName) {
             return new Promise((resolve) => {
                 Papa.parse(fileName, {
@@ -306,7 +305,6 @@
             });
         }
 
-        // 3. FUNGSI INISIASI (MENARIK BULAN 5 JUGA)
         async function initDashboard() {
             await Promise.all([
                 loadCSVFile(1, '2026-01.csv'),
@@ -316,27 +314,36 @@
                 loadCSVFile(5, '2026-05.csv')
             ]);
             
-            let currentPoints = rawCSVData[5].points;
+            // Panggil fungsi penanganan perubahan bulan saat inisialisasi
+            handleMonthChange();
+        }
+
+        window.onload = initDashboard;
+
+        // Fungsi baru untuk mengatur batas input tanggal setiap kali bulan diubah
+        function handleMonthChange() {
+            const monthVal = parseInt(document.getElementById('monthFilter').value);
+            let currentPoints = rawCSVData[monthVal].points;
             let currentKeys = Object.keys(currentPoints).map(Number);
             let inputLastDate = document.getElementById('lastDate');
+            let maxDays = rawCSVData[monthVal].days;
             
             if (currentKeys.length > 0) {
                 let latestDay = Math.max(...currentKeys);
                 inputLastDate.min = 1;
-                inputLastDate.max = latestDay;
+                inputLastDate.max = maxDays;
+                
+                // Set default value ke hari terakhir observasi data
                 inputLastDate.value = latestDay;
             } else {
                 inputLastDate.min = 1;
-                inputLastDate.max = 31;
+                inputLastDate.max = maxDays;
                 inputLastDate.value = 1;
             }
             
             updateDashboard();
         }
 
-        window.onload = initDashboard;
-
-        // 4. INTERPOLASI LOGIC
         function interpolateData(pointsObj, totalDays) {
             let keys = Object.keys(pointsObj).map(Number).sort((a, b) => a - b);
             
@@ -360,7 +367,6 @@
                 let eopVal = 0, churnVal = 0;
                 let isEopInt = false, isChurnInt = false;
 
-                // Hitung EOP
                 if (validEOPKeys.includes(i)) {
                     eopVal = pointsObj[i].eop;
                 } else {
@@ -376,7 +382,6 @@
                     }
                 }
 
-                // Hitung Churn
                 if (validChurnKeys.includes(i)) {
                     churnVal = pointsObj[i].churn;
                 } else {
@@ -420,118 +425,107 @@
             return 'rate-bad';
         }
 
-        // 5. RENDER DASHBOARD
+        // LOKASI PERUBAHAN UTAMA LOGIKA PROYEKSI
         function updateDashboard() {
             const monthVal = parseInt(document.getElementById('monthFilter').value);
-            const aprControl = document.getElementById('aprControl');
             let monthName = ["", "Januari", "Februari", "Maret", "April", "Mei"][monthVal];
+            let totalDays = rawCSVData[monthVal].days;
+            
+            let lastDateInput = document.getElementById('lastDate');
+            let lastDate = parseInt(lastDateInput.value);
+
+            // Menjaga agar lastDate tidak melebihi total hari di bulan yang dipilih
+            if (lastDate > totalDays) {
+                lastDate = totalDays;
+                lastDateInput.value = totalDays;
+            }
+
             let dailyData = [];
+            let filledActuals = interpolateData(rawCSVData[monthVal].points, totalDays);
+            
+            let actualDataAtLastDate = filledActuals.find(d => d.day === lastDate) || filledActuals[filledActuals.length-1];
+            let currentActualEOP = actualDataAtLastDate.eop;
+            let currentActualChurn = actualDataAtLastDate.churn;
 
-            // KINI BULAN MEI (5) ADALAH BULAN BERJALAN/AKTIF
-            if (monthVal === 5) {
-                aprControl.style.display = 'flex';
-                let lastDate = parseInt(document.getElementById('lastDate').value);
+            const avg_eop_growth = 260.05618;
+            let targetEOP = currentActualEOP + (avg_eop_growth * (totalDays - lastDate)); 
+
+            let sumRatio = 0;
+            let countRatio = 0;
+
+            // Logika rasio dinamis berdasarkan bulan yang mendahului bulan terpilih
+            for (let m = 1; m < monthVal; m++) {
+                let histPts = rawCSVData[m].points;
+                let mDays = rawCSVData[m].days;
                 
-                let filledActuals = interpolateData(rawCSVData[5].points, 31);
+                let availableDays = Object.keys(histPts).map(Number).sort((a,b) => a-b);
+                let closestDay = availableDays.slice().reverse().find(k => k <= lastDate);
                 
-                let actualDataAtLastDate = filledActuals.find(d => d.day === lastDate) || filledActuals[filledActuals.length-1];
-                let currentActualEOP = actualDataAtLastDate.eop;
-                let currentActualChurn = actualDataAtLastDate.churn;
-
-                const avg_eop_growth = 260.05618;
-                let targetEOP = currentActualEOP + (avg_eop_growth * (31 - lastDate)); 
-
-                let sumRatio = 0;
-                let countRatio = 0;
-
-                // Kumpulkan data rasio dari bulan 1, 2, 3, dan 4 (Kini April jadi data historis)
-                [1, 2, 3, 4].forEach(m => {
-                    let histPts = rawCSVData[m].points;
-                    let mDays = rawCSVData[m].days;
-                    
-                    let availableDays = Object.keys(histPts).map(Number).sort((a,b) => a-b);
-                    let closestDay = availableDays.slice().reverse().find(k => k <= lastDate);
-                    
-                    if (closestDay && histPts[mDays] && histPts[closestDay].churn > 0) {
-                        let mRatio = histPts[mDays].churn / histPts[closestDay].churn;
-                        sumRatio += mRatio;
-                        countRatio++;
-                    }
-                });
-
-                let historical_ratio = (countRatio > 0) ? (sumRatio / countRatio) : 0.85; 
-                let targetChurn = currentActualChurn * historical_ratio;
-
-                // Loop hingga tanggal 31 (Jumlah hari di bulan Mei)
-                for (let i = 1; i <= 31; i++) {
-                    let d = filledActuals[i - 1];
-                    if (i <= lastDate) {
-                        dailyData.push(d);
-                    } else {
-                        let stepsTotal = 31 - lastDate;
-                        let progress = (i - lastDate) / stepsTotal; 
-                        
-                        dailyData.push({
-                            day: i,
-                            eop: Math.round(currentActualEOP + ((targetEOP - currentActualEOP) * progress)),
-                            churn: Math.round(currentActualChurn + ((targetChurn - currentActualChurn) * progress)),
-                            type: 'projection',
-                            isEopInt: false,
-                            isChurnInt: false
-                        });
-                    }
+                if (closestDay && histPts[mDays] && histPts[closestDay].churn > 0) {
+                    let mRatio = histPts[mDays].churn / histPts[closestDay].churn;
+                    sumRatio += mRatio;
+                    countRatio++;
                 }
-            } else {
-                aprControl.style.display = 'none';
-                let hist = rawCSVData[monthVal];
-                let filled = interpolateData(hist.points, hist.days);
-                filled.forEach(d => dailyData.push(d));
+            }
+
+            let historical_ratio = (countRatio > 0) ? (sumRatio / countRatio) : 0.85; 
+            let targetChurn = currentActualChurn * historical_ratio;
+
+            // Generate daily data arrays
+            for (let i = 1; i <= totalDays; i++) {
+                let d = filledActuals[i - 1];
+                if (i <= lastDate) {
+                    dailyData.push(d); // Data aktual hingga tanggal filter
+                } else {
+                    // Data proyeksi setelah tanggal filter
+                    let stepsTotal = totalDays - lastDate;
+                    let progress = (i - lastDate) / stepsTotal; 
+                    
+                    dailyData.push({
+                        day: i,
+                        eop: Math.round(currentActualEOP + ((targetEOP - currentActualEOP) * progress)),
+                        churn: Math.round(currentActualChurn + ((targetChurn - currentActualChurn) * progress)),
+                        type: 'projection',
+                        isEopInt: false,
+                        isChurnInt: false
+                    });
+                }
             }
 
             dailyData.forEach(d => { d.rate = ((d.churn / d.eop) * 100).toFixed(2); });
 
             const finalData = dailyData[dailyData.length - 1];
             const firstData = dailyData[0];
+            let currentData = dailyData[lastDate - 1];
 
-            if (monthVal === 5) {
-                let lastDate = parseInt(document.getElementById('lastDate').value);
-                let currentData = dailyData[lastDate - 1];
-
+            // Penyesuaian KPI Labels bergantung apakah user melihat Proyeksi atau Hasil Akhir
+            if (lastDate < totalDays) {
                 document.getElementById('lbl-eop').innerText = "Proyeksi EOP Akhir Bulan";
                 document.getElementById('lbl-churn').innerText = "Proyeksi Churn Akhir Bulan";
                 document.getElementById('lbl-rate-current').innerText = `Rate Aktual (Tgl ${lastDate})`;
-                document.getElementById('lbl-rate').innerText = "Rate Proyeksi (Tgl 31)";
+                document.getElementById('lbl-rate').innerText = `Rate Proyeksi (Tgl ${totalDays})`;
 
-                document.getElementById('sum-eop').innerText = finalData.eop.toLocaleString('id-ID');
-                document.getElementById('sum-churn').innerText = finalData.churn.toLocaleString('id-ID');
-                document.getElementById('sum-rate-current').innerText = currentData.rate + "%";
-                document.getElementById('sum-rate').innerText = finalData.rate + "%";
-
-                let eopDiff = finalData.eop - firstData.eop;
-                let churnDiff = finalData.churn - firstData.churn;
-                document.getElementById('sub-eop').innerHTML = `<i class="fa-solid fa-arrow-up up"></i> <span class="up">+${eopDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
-                document.getElementById('sub-churn').innerHTML = `<i class="fa-solid fa-arrow-down down"></i> <span class="down">${churnDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
                 document.getElementById('sub-rate-current').innerHTML = `<i class="fa-solid fa-circle-info"></i> Observasi per ${lastDate} ${monthName}`;
-                document.getElementById('sub-rate').innerHTML = `<i class="fa-solid fa-chart-line"></i> Estimasi per 31 ${monthName}`;
+                document.getElementById('sub-rate').innerHTML = `<i class="fa-solid fa-chart-line"></i> Estimasi per ${totalDays} ${monthName}`;
             } else {
                 document.getElementById('lbl-eop').innerText = "Total EOP Akhir Bulan";
                 document.getElementById('lbl-churn').innerText = "Total Churn Akhir Bulan";
-                document.getElementById('lbl-rate-current').innerText = "Rate Tengah Bulan (Tgl 15)";
+                document.getElementById('lbl-rate-current').innerText = `Rate Aktual (Tgl ${lastDate})`;
                 document.getElementById('lbl-rate').innerText = "Rate Akhir Bulan";
 
-                let midData = dailyData[14];
-                document.getElementById('sum-eop').innerText = finalData.eop.toLocaleString('id-ID');
-                document.getElementById('sum-churn').innerText = finalData.churn.toLocaleString('id-ID');
-                document.getElementById('sum-rate-current').innerText = midData.rate + "%";
-                document.getElementById('sum-rate').innerText = finalData.rate + "%";
-
-                let eopDiff = finalData.eop - firstData.eop;
-                let churnDiff = finalData.churn - firstData.churn;
-                document.getElementById('sub-eop').innerHTML = `<i class="fa-solid fa-arrow-up up"></i> <span class="up">+${eopDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
-                document.getElementById('sub-churn').innerHTML = `<i class="fa-solid fa-arrow-down down"></i> <span class="down">${churnDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
-                document.getElementById('sub-rate-current').innerHTML = `<i class="fa-solid fa-circle-info"></i> Observasi per 15 ${monthName}`;
-                document.getElementById('sub-rate').innerHTML = `<i class="fa-solid fa-chart-line"></i> Penutupan ${monthName}`;
+                document.getElementById('sub-rate-current').innerHTML = `<i class="fa-solid fa-circle-info"></i> Penutupan Data Aktual`;
+                document.getElementById('sub-rate').innerHTML = `<i class="fa-solid fa-check-double"></i> Realisasi Akhir Bulan`;
             }
+
+            document.getElementById('sum-eop').innerText = finalData.eop.toLocaleString('id-ID');
+            document.getElementById('sum-churn').innerText = finalData.churn.toLocaleString('id-ID');
+            document.getElementById('sum-rate-current').innerText = currentData.rate + "%";
+            document.getElementById('sum-rate').innerText = finalData.rate + "%";
+
+            let eopDiff = finalData.eop - firstData.eop;
+            let churnDiff = finalData.churn - firstData.churn;
+            document.getElementById('sub-eop').innerHTML = `<i class="fa-solid fa-arrow-up up"></i> <span class="up">+${eopDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
+            document.getElementById('sub-churn').innerHTML = `<i class="fa-solid fa-arrow-down down"></i> <span class="down">${churnDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
 
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
@@ -565,10 +559,10 @@
                 tableBody.appendChild(tr);
             });
 
-            renderChart(dailyData, monthName, monthVal);
+            renderChart(dailyData, monthName, monthVal, lastDate);
         }
 
-        function renderChart(data, monthName, monthVal) {
+        function renderChart(data, monthName, monthVal, lastDate) {
             const ctx = document.getElementById('dailyChart').getContext('2d');
             if (currentChart) currentChart.destroy();
 
