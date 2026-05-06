@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard EOM Churn Rate Prediction 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        /* ================= DARK MODE (DEFAULT) ================= */
         :root {
             --bg-root: #0c0f14;
             --bg-sidebar: #10141b;
@@ -23,7 +21,6 @@
             --text-primary: #e8ecf4;
             --text-secondary: #8892a8;
             --text-muted: #5a6478;
-            
             --accent: #00d4aa;
             --accent-dim: rgba(0, 212, 170, 0.12);
             --accent-glow: rgba(0, 212, 170, 0.25);
@@ -35,42 +32,22 @@
             --blue-dim: rgba(79, 172, 254, 0.12);
             --green: #00d4aa;
             --green-dim: rgba(0, 212, 170, 0.12);
-            
             --radius: 10px;
             --radius-lg: 14px;
             --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 6px 16px rgba(0,0,0,0.2);
-            --chart-point-bg: #0c0f14;
-        }
-
-        /* ================= LIGHT MODE ================= */
-        body.light-theme {
-            --bg-root: #eef2f6;
-            --bg-sidebar: #ffffff;
-            --bg-main: #f4f7fb;
-            --bg-card: #ffffff;
-            --bg-card-hover: #f8fafc;
-            --bg-input: #ffffff;
-            --border: #e2e8f0;
-            --border-light: #cbd5e1;
-            --text-primary: #1e293b;
-            --text-secondary: #475569;
-            --text-muted: #64748b;
-            
-            --shadow-card: 0 2px 4px rgba(0,0,0,0.03), 0 8px 16px rgba(0,0,0,0.03);
-            --chart-point-bg: #ffffff;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body { font-family: 'DM Sans', sans-serif; background: var(--bg-root); color: var(--text-primary); display: flex; min-height: 100vh; overflow-x: hidden; transition: background-color 0.3s, color 0.3s; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg-root); color: var(--text-primary); display: flex; min-height: 100vh; overflow-x: hidden; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-        .sidebar { width: 250px; min-height: 100vh; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; transition: background-color 0.3s, border-color 0.3s; }
-        .sidebar-brand { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; transition: border-color 0.3s; }
-        .sidebar-brand .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #00a885); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #ffffff; font-weight: 700; box-shadow: 0 0 20px var(--accent-glow); }
+        .sidebar { width: 250px; min-height: 100vh; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; position: sticky; top: 0; height: 100vh; }
+        .sidebar-brand { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+        .sidebar-brand .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent), #00a885); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #0c0f14; font-weight: 700; box-shadow: 0 0 20px var(--accent-glow); }
         .sidebar-brand h1 { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 600; color: var(--text-primary); line-height: 1.2; }
         .sidebar-brand span { font-size: 11px; color: var(--text-muted); font-weight: 400; }
         .sidebar-nav { padding: 16px 12px; flex: 1; }
@@ -80,26 +57,21 @@
         .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
         .nav-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 500; }
         .nav-item.active i { color: var(--accent); }
-        .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-muted); transition: border-color 0.3s; }
+        .sidebar-footer { padding: 16px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-muted); }
 
         .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-        .topbar { padding: 18px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-main); position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); transition: background-color 0.3s, border-color 0.3s; }
+        .topbar { padding: 18px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-main); position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); }
         .topbar-left h2 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; color: var(--text-primary); }
         .topbar-left p { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
         .topbar-right { display: flex; align-items: center; gap: 12px; }
         .topbar-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,212,170,0.15); }
         .topbar-time { font-size: 12px; color: var(--text-muted); }
-        
-        /* Tombol Theme */
-        .theme-btn { background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .theme-btn:hover { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent-dim); }
-
         .content { padding: 28px 32px 40px; flex: 1; }
 
         .controls-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
         .ctrl-group { display: flex; align-items: center; gap: 8px; }
         .ctrl-group label { font-size: 12px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; }
-        .ctrl-group select, .ctrl-group input { background: var(--bg-input); border: 1px solid var(--border-light); color: var(--text-primary); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; transition: all 0.2s; min-width: 140px; }
+        .ctrl-group select, .ctrl-group input { background: var(--bg-input); border: 1px solid var(--border-light); color: var(--text-primary); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.2s; min-width: 140px; }
         .ctrl-group select:focus, .ctrl-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
         .ctrl-separator { width: 1px; height: 28px; background: var(--border); }
 
@@ -123,7 +95,7 @@
         .kpi-sub .up { color: var(--accent); }
         .kpi-sub .down { color: var(--red); }
 
-        .chart-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 28px; transition: background-color 0.3s, border-color 0.3s; }
+        .chart-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 28px; }
         .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .chart-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
         .chart-legend { display: flex; gap: 16px; }
@@ -132,16 +104,16 @@
         .legend-dot.dashed { background: transparent !important; border: 2px dashed; width: 10px; height: 0; border-radius: 0; }
         .chart-container { position: relative; height: 360px; width: 100%; }
 
-        .table-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: background-color 0.3s, border-color 0.3s; }
+        .table-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
         .table-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
         .table-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
         .table-count { font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 4px 10px; border-radius: 12px; border: 1px solid var(--border); }
         .table-wrapper { max-height: 420px; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        thead th { background: var(--bg-input); color: var(--text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 20px; text-align: left; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); transition: background-color 0.3s; }
+        thead th { background: var(--bg-input); color: var(--text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 20px; text-align: left; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
         thead th:first-child { padding-left: 24px; }
         thead th:last-child { text-align: right; padding-right: 24px; }
-        tbody td { padding: 11px 20px; border-bottom: 1px solid var(--border); color: var(--text-primary); font-variant-numeric: tabular-nums; transition: border-color 0.3s; }
+        tbody td { padding: 11px 20px; border-bottom: 1px solid rgba(38,45,61,0.5); color: var(--text-primary); font-variant-numeric: tabular-nums; }
         tbody td:first-child { padding-left: 24px; }
         tbody td:last-child { text-align: right; padding-right: 24px; font-weight: 600; }
         tbody tr:hover { background: var(--bg-card-hover); }
@@ -151,10 +123,10 @@
         
         .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
         .status-pill.actual { background: var(--blue-dim); color: var(--blue); }
-        .status-pill.interpolated { background: var(--border); color: var(--text-secondary); }
+        .status-pill.interpolated { background: rgba(138,150,180,0.12); color: var(--text-secondary); }
         .status-pill.projection { background: var(--amber-dim); color: var(--amber); }
         
-        .badge-intp { font-size: 9px; background: var(--border-light); color: var(--text-secondary); padding: 2px 5px; border-radius: 4px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.5px; font-family: 'DM Sans', sans-serif; font-weight: 600;}
+        .badge-intp { font-size: 9px; background: rgba(138,150,180,0.15); color: var(--text-secondary); padding: 2px 5px; border-radius: 4px; margin-left: 6px; vertical-align: middle; letter-spacing: 0.5px; font-family: 'DM Sans', sans-serif; font-weight: 600;}
         
         .rate-cell { font-family: 'Space Grotesk', sans-serif; }
         .rate-good { color: var(--accent); }
@@ -194,12 +166,9 @@
         <header class="topbar">
             <div class="topbar-left">
                 <h2>Analitik & Proyeksi Churn</h2>
-                <p>Periode data aktual CSV &mdash; Januari s/d Mei 2026</p>
+                <p>Periode data aktual (Dummy) &mdash; Januari s/d Mei 2026</p>
             </div>
             <div class="topbar-right">
-                <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle Tema">
-                    <i class="fa-solid fa-sun"></i>
-                </button>
                 <div class="topbar-badge"><i class="fa-solid fa-circle"></i> Internal Data</div>
                 <span class="topbar-time" id="liveTime"></span>
             </div>
@@ -293,39 +262,9 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // --- SISTEM TEMA ---
-        function toggleTheme() {
-            document.body.classList.toggle('light-theme');
-            const isLight = document.body.classList.contains('light-theme');
-            
-            // Simpan preferensi pengguna
-            localStorage.setItem('dashboard_theme', isLight ? 'light' : 'dark');
-            
-            // Ubah ikon tombol
-            const btnIcon = document.querySelector('#themeToggle i');
-            if(isLight) {
-                btnIcon.classList.remove('fa-sun');
-                btnIcon.classList.add('fa-moon');
-            } else {
-                btnIcon.classList.remove('fa-moon');
-                btnIcon.classList.add('fa-sun');
-            }
-            
-            // Render ulang grafik agar warna grid/teks menyesuaikan tema
-            if(currentChart) {
-                updateDashboard();
-            }
-        }
-
-        // Cek preferensi tema saat halaman dimuat
-        if(localStorage.getItem('dashboard_theme') === 'light') {
-            document.body.classList.add('light-theme');
-            document.querySelector('#themeToggle i').classList.remove('fa-sun');
-            document.querySelector('#themeToggle i').classList.add('fa-moon');
-        }
-
         let currentChart = null;
 
+        // Inisialisasi struktur object
         let rawCSVData = {
             1: { days: 31, points: {} },
             2: { days: 28, points: {} },
@@ -334,46 +273,43 @@
             5: { days: 31, points: {} }
         };
 
-        function loadCSVFile(month, fileName) {
-            return new Promise((resolve) => {
-                Papa.parse(fileName, {
-                    download: true,
-                    header: true,
-                    skipEmptyLines: true,
-                    complete: function(results) {
-                        results.data.forEach(row => {
-                            if(row.Date) {
-                                let day = parseInt(row.Date.split('-')[0]);
-                                
-                                let eopStr = row.EOP ? row.EOP.replace(/,/g, '') : '';
-                                let eop = parseInt(eopStr);
-                                
-                                let churnStr = row["Predict Churn Sub"] ? row["Predict Churn Sub"].replace(/,/g, '') : '';
-                                let churn = parseInt(churnStr);
-                                
-                                if(!isNaN(day) && (!isNaN(eop) || !isNaN(churn))) {
-                                    rawCSVData[month].points[day] = { 
-                                        eop: !isNaN(eop) ? eop : null, 
-                                        churn: !isNaN(churn) ? churn : null 
-                                    };
-                                }
-                            }
-                        });
-                        resolve();
+        // Fungsi baru untuk membuat data tiruan (dummy data) pengganti loadCSVFile
+        function generateDummyData() {
+            let currentEOP = 450000;
+            let currentChurn = 25000;
+
+            for (let m = 1; m <= 5; m++) {
+                let daysInMonth = rawCSVData[m].days;
+                
+                // Khusus bulan Mei (bulan 5), kita simulasikan data aktual baru terisi sampai tanggal 5
+                // sesuai gambar referensi
+                let dataDays = (m === 5) ? 5 : daysInMonth; 
+
+                for (let d = 1; d <= dataDays; d++) {
+                    // Tren buatan: EOP selalu naik, Churn cenderung turun
+                    currentEOP += Math.floor(200 + Math.random() * 100); 
+                    currentChurn -= Math.floor(80 + Math.random() * 50);
+
+                    // Angka spesifik untuk bulan 5 (Mei) agar mendekati persis seperti screenshot
+                    if (m === 5) {
+                        if (d === 1) { currentEOP = 481632; currentChurn = 19345; }
+                        if (d === 2) { currentEOP = 481890; currentChurn = 19000; }
+                        if (d === 3) { currentEOP = 482100; currentChurn = 18200; }
+                        if (d === 4) { currentEOP = 482350; currentChurn = 17400; }
+                        if (d === 5) { currentEOP = 482632; currentChurn = 16845; }
                     }
-                });
-            });
+
+                    rawCSVData[m].points[d] = {
+                        eop: currentEOP,
+                        churn: currentChurn
+                    };
+                }
+            }
         }
 
         async function initDashboard() {
-            await Promise.all([
-                loadCSVFile(1, '2026-01.csv'),
-                loadCSVFile(2, '2026-02.csv'),
-                loadCSVFile(3, '2026-03.csv'),
-                loadCSVFile(4, '2026-04.csv'),
-                loadCSVFile(5, '2026-05.csv')
-            ]);
-            
+            // Kita panggil fungsi pembuat data dummy alih-alih me-load CSV
+            generateDummyData();
             handleMonthChange();
         }
 
@@ -624,25 +560,15 @@
             let eopActual = data.map((d, i) => i <= lastActualIndex ? d.eop : null);
             let eopProj = data.map((d, i) => i >= lastActualIndex ? d.eop : null);
 
-            // Deteksi apakah sedang dalam mode terang untuk menyesuaikan warna komponen chart
-            const isLight = document.body.classList.contains('light-theme');
-            const gridColor = isLight ? 'rgba(226, 232, 240, 0.8)' : 'rgba(38,45,61,0.5)';
-            const tickColor = isLight ? '#64748b' : '#5a6478';
-            const tooltipBg = isLight ? '#ffffff' : '#1a1f2b';
-            const tooltipTitleColor = isLight ? '#1e293b' : '#e8ecf4';
-            const tooltipBodyColor = isLight ? '#475569' : '#8892a8';
-            const tooltipBorderColor = isLight ? '#cbd5e1' : '#262d3d';
-            const pointBg = isLight ? '#ffffff' : '#0c0f14';
-
             currentChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Aktual: Churn', data: churnActual, borderColor: '#ff5c72', backgroundColor: 'rgba(255, 92, 114, 0.08)', borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, pointBackgroundColor: '#ff5c72', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y', fill: true, tension: 0.35 },
-                        { label: 'Proyeksi: Churn', data: churnProj, borderColor: '#ff5c72', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: '#ff5c72', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y', fill: false, tension: 0.35 },
-                        { label: 'Aktual: EOP', data: eopActual, borderColor: '#00d4aa', backgroundColor: 'rgba(0, 212, 170, 0.06)', borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, pointBackgroundColor: '#00d4aa', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y1', fill: true, tension: 0.35 },
-                        { label: 'Proyeksi: EOP', data: eopProj, borderColor: '#00d4aa', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: '#00d4aa', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y1', fill: false, tension: 0.35 }
+                        { label: 'Aktual: Churn', data: churnActual, borderColor: '#ff5c72', backgroundColor: 'rgba(255, 92, 114, 0.08)', borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, pointBackgroundColor: '#ff5c72', pointBorderColor: '#0c0f14', pointBorderWidth: 2, yAxisID: 'y', fill: true, tension: 0.35 },
+                        { label: 'Proyeksi: Churn', data: churnProj, borderColor: '#ff5c72', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: '#ff5c72', pointBorderColor: '#0c0f14', pointBorderWidth: 2, yAxisID: 'y', fill: false, tension: 0.35 },
+                        { label: 'Aktual: EOP', data: eopActual, borderColor: '#00d4aa', backgroundColor: 'rgba(0, 212, 170, 0.06)', borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, pointBackgroundColor: '#00d4aa', pointBorderColor: '#0c0f14', pointBorderWidth: 2, yAxisID: 'y1', fill: true, tension: 0.35 },
+                        { label: 'Proyeksi: EOP', data: eopProj, borderColor: '#00d4aa', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: '#00d4aa', pointBorderColor: '#0c0f14', pointBorderWidth: 2, yAxisID: 'y1', fill: false, tension: 0.35 }
                     ]
                 },
                 options: {
@@ -650,7 +576,7 @@
                     plugins: { 
                         legend: { display: false }, 
                         tooltip: { 
-                            backgroundColor: tooltipBg, titleColor: tooltipTitleColor, bodyColor: tooltipBodyColor, borderColor: tooltipBorderColor, borderWidth: 1, padding: 12, cornerRadius: 8, titleFont: { family: 'Space Grotesk', weight: '600', size: 13 }, bodyFont: { family: 'DM Sans', size: 12 }, displayColors: true, boxWidth: 8, boxHeight: 8, boxPadding: 4, 
+                            backgroundColor: '#1a1f2b', titleColor: '#e8ecf4', bodyColor: '#8892a8', borderColor: '#262d3d', borderWidth: 1, padding: 12, cornerRadius: 8, titleFont: { family: 'Space Grotesk', weight: '600', size: 13 }, bodyFont: { family: 'DM Sans', size: 12 }, displayColors: true, boxWidth: 8, boxHeight: 8, boxPadding: 4, 
                             
                             filter: function(tooltipItem) {
                                 if (tooltipItem.dataIndex === lastActualIndex && tooltipItem.dataset.label.includes('Proyeksi')) {
@@ -676,9 +602,9 @@
                         } 
                     },
                     scales: {
-                        x: { grid: { color: gridColor, drawTicks: false }, ticks: { color: tickColor, font: { family: 'DM Sans', size: 11 }, padding: 8, maxRotation: 0, callback: function(val, idx) { return (idx % 5 === 0 || idx === data.length - 1) ? this.getLabelForValue(val) : ''; } }, border: { display: false } },
-                        y: { position: 'left', grid: { color: gridColor, drawTicks: false }, ticks: { color: tickColor, font: { family: 'Space Grotesk', size: 11 }, padding: 10, callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v }, border: { display: false } },
-                        y1: { position: 'right', grid: { drawOnChartArea: false, drawTicks: false }, ticks: { color: tickColor, font: { family: 'Space Grotesk', size: 11 }, padding: 10, callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v }, border: { display: false } }
+                        x: { grid: { color: 'rgba(38,45,61,0.5)', drawTicks: false }, ticks: { color: '#5a6478', font: { family: 'DM Sans', size: 11 }, padding: 8, maxRotation: 0, callback: function(val, idx) { return (idx % 5 === 0 || idx === data.length - 1) ? this.getLabelForValue(val) : ''; } }, border: { display: false } },
+                        y: { position: 'left', grid: { color: 'rgba(38,45,61,0.4)', drawTicks: false }, ticks: { color: '#5a6478', font: { family: 'Space Grotesk', size: 11 }, padding: 10, callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v }, border: { display: false } },
+                        y1: { position: 'right', grid: { drawOnChartArea: false, drawTicks: false }, ticks: { color: '#5a6478', font: { family: 'Space Grotesk', size: 11 }, padding: 10, callback: (v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v }, border: { display: false } }
                     }
                 }
             });
