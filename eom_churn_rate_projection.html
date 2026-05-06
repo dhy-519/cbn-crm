@@ -10,40 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        /* ================= DARK MODE (DEFAULT) ================= */
+        /* ================= LIGHT MODE (DEFAULT) ================= */
         :root {
-            --bg-root: #0c0f14;
-            --bg-sidebar: #10141b;
-            --bg-main: #141821;
-            --bg-card: #1a1f2b;
-            --bg-card-hover: #1f2535;
-            --bg-input: #1e2430;
-            --border: #262d3d;
-            --border-light: #2a3248;
-            --text-primary: #e8ecf4;
-            --text-secondary: #8892a8;
-            --text-muted: #5a6478;
-            
-            --accent: #00d4aa;
-            --accent-dim: rgba(0, 212, 170, 0.12);
-            --accent-glow: rgba(0, 212, 170, 0.25);
-            --red: #ff5c72;
-            --red-dim: rgba(255, 92, 114, 0.12);
-            --amber: #ffb347;
-            --amber-dim: rgba(255, 179, 71, 0.12);
-            --blue: #4facfe;
-            --blue-dim: rgba(79, 172, 254, 0.12);
-            --green: #00d4aa;
-            --green-dim: rgba(0, 212, 170, 0.12);
-            
-            --radius: 10px;
-            --radius-lg: 14px;
-            --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 6px 16px rgba(0,0,0,0.2);
-            --chart-point-bg: #0c0f14;
-        }
-
-        /* ================= LIGHT MODE ================= */
-        body.light-theme {
             --bg-root: #eef2f6;
             --bg-sidebar: #ffffff;
             --bg-main: #f4f7fb;
@@ -56,8 +24,44 @@
             --text-secondary: #475569;
             --text-muted: #64748b;
             
+            --accent: #00a885;
+            --accent-dim: rgba(0, 168, 133, 0.12);
+            --accent-glow: rgba(0, 168, 133, 0.25);
+            --red: #e0435a;
+            --red-dim: rgba(224, 67, 90, 0.12);
+            --amber: #e09520;
+            --amber-dim: rgba(224, 149, 32, 0.12);
+            --blue: #2b8fd9;
+            --blue-dim: rgba(43, 143, 217, 0.12);
+            --green: #00a885;
+            --green-dim: rgba(0, 168, 133, 0.12);
+            
+            --radius: 10px;
+            --radius-lg: 14px;
             --shadow-card: 0 2px 4px rgba(0,0,0,0.03), 0 8px 16px rgba(0,0,0,0.03);
             --chart-point-bg: #ffffff;
+        }
+
+        /* ================= DARK MODE ================= */
+        body.dark-theme {
+            --bg-root: #0c0f14;
+            --bg-sidebar: #10141b;
+            --bg-main: #141821;
+            --bg-card: #1a1f2b;
+            --bg-card-hover: #1f2535;
+            --bg-input: #1e2430;
+            --border: #262d3d;
+            --border-light: #2a3248;
+            --text-primary: #e8ecf4;
+            --text-secondary: #8892a8;
+            --text-muted: #5a6478;
+            --accent: #00d4aa;
+            --red: #ff5c72;
+            --amber: #ffb347;
+            --blue: #4facfe;
+            --green: #00d4aa;
+            --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 6px 16px rgba(0,0,0,0.2);
+            --chart-point-bg: #0c0f14;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -86,20 +90,73 @@
         .topbar { padding: 18px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-main); position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); transition: background-color 0.3s, border-color 0.3s; }
         .topbar-left h2 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; color: var(--text-primary); }
         .topbar-left p { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
-        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .topbar-right { display: flex; align-items: center; gap: 16px; } /* Jarak antar elemen header */
         .topbar-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,212,170,0.15); }
         .topbar-time { font-size: 12px; color: var(--text-muted); }
         
-        /* Tombol Theme */
-        .theme-btn { background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border); width: 34px; height: 34px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-        .theme-btn:hover { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent-dim); }
+        /* ================= THEME SLIDER SWITCHER ================= */
+        .theme-switcher {
+            display: flex;
+            align-items: center;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            position: relative;
+            cursor: pointer;
+            padding: 4px;
+            width: 170px; /* Lebar keseluruhan tombol */
+            height: 38px;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+        .theme-switcher .slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: calc(50% - 3px);
+            height: calc(100% - 6px);
+            background: var(--accent);
+            border-radius: 20px;
+            transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1);
+            z-index: 1;
+        }
+        .theme-switcher .switch-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            z-index: 2;
+            color: var(--text-secondary);
+            transition: color 0.35s;
+            user-select: none;
+        }
+        /* Mode Terang (Default) -> Slider di kanan */
+        .theme-switcher .slider {
+            transform: translateX(100%);
+        }
+        .theme-switcher .switch-btn.light {
+            color: #ffffff; /* Warna teks kontras di atas hijau accent */
+        }
+        /* Mode Gelap -> Slider di kiri */
+        body.dark-theme .theme-switcher .slider {
+            transform: translateX(0);
+        }
+        body.dark-theme .theme-switcher .switch-btn.dark {
+            color: #0c0f14; /* Warna teks kontras di atas hijau accent */
+        }
+        body.dark-theme .theme-switcher .switch-btn.light {
+            color: var(--text-secondary);
+        }
+        /* ========================================================= */
 
         .content { padding: 28px 32px 40px; flex: 1; }
 
         .controls-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
         .ctrl-group { display: flex; align-items: center; gap: 8px; }
         .ctrl-group label { font-size: 12px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; }
-        .ctrl-group select, .ctrl-group input { background: var(--bg-input); border: 1px solid var(--border-light); color: var(--text-primary); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; transition: all 0.2s; min-width: 140px; }
+        .ctrl-group select, .ctrl-group input { background: var(--bg-input); border: 1px solid var(--border-light); color: var(--text-primary); padding: 8px 14px; border-radius: 8px; font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.2s; min-width: 140px; }
         .ctrl-group select:focus, .ctrl-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
         .ctrl-separator { width: 1px; height: 28px; background: var(--border); }
 
@@ -123,7 +180,7 @@
         .kpi-sub .up { color: var(--accent); }
         .kpi-sub .down { color: var(--red); }
 
-        .chart-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 28px; transition: background-color 0.3s, border-color 0.3s; }
+        .chart-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 28px; }
         .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .chart-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
         .chart-legend { display: flex; gap: 16px; }
@@ -132,16 +189,16 @@
         .legend-dot.dashed { background: transparent !important; border: 2px dashed; width: 10px; height: 0; border-radius: 0; }
         .chart-container { position: relative; height: 360px; width: 100%; }
 
-        .table-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: background-color 0.3s, border-color 0.3s; }
+        .table-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
         .table-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
         .table-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
         .table-count { font-size: 11px; color: var(--text-muted); background: var(--bg-input); padding: 4px 10px; border-radius: 12px; border: 1px solid var(--border); }
         .table-wrapper { max-height: 420px; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        thead th { background: var(--bg-input); color: var(--text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 20px; text-align: left; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); transition: background-color 0.3s; }
+        thead th { background: var(--bg-input); color: var(--text-secondary); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 20px; text-align: left; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
         thead th:first-child { padding-left: 24px; }
         thead th:last-child { text-align: right; padding-right: 24px; }
-        tbody td { padding: 11px 20px; border-bottom: 1px solid var(--border); color: var(--text-primary); font-variant-numeric: tabular-nums; transition: border-color 0.3s; }
+        tbody td { padding: 11px 20px; border-bottom: 1px solid var(--border); color: var(--text-primary); font-variant-numeric: tabular-nums; }
         tbody td:first-child { padding-left: 24px; }
         tbody td:last-child { text-align: right; padding-right: 24px; font-weight: 600; }
         tbody tr:hover { background: var(--bg-card-hover); }
@@ -164,14 +221,6 @@
         @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 860px) { .sidebar { display: none; } .content { padding: 20px 16px; } .kpi-grid { grid-template-columns: 1fr 1fr; gap: 12px; } .controls-bar { flex-direction: column; align-items: stretch; } .ctrl-separator { display: none; } }
         @media (max-width: 540px) { .kpi-grid { grid-template-columns: 1fr; } }
-        
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .kpi-card, .chart-section, .table-section { animation: fadeUp 0.45s ease both; }
-        .kpi-card:nth-child(2) { animation-delay: 0.06s; }
-        .kpi-card:nth-child(3) { animation-delay: 0.12s; }
-        .kpi-card:nth-child(4) { animation-delay: 0.18s; }
-        .chart-section { animation-delay: 0.24s; }
-        .table-section { animation-delay: 0.30s; }
     </style>
 </head>
 <body>
@@ -197,9 +246,14 @@
                 <p>Periode data aktual CSV &mdash; Januari s/d Mei 2026</p>
             </div>
             <div class="topbar-right">
-                <button id="themeToggle" class="theme-btn" onclick="toggleTheme()" title="Toggle Tema">
-                    <i class="fa-solid fa-sun"></i>
-                </button>
+                
+                <!-- SLIDER THEME BARU -->
+                <div class="theme-switcher" onclick="toggleTheme()" title="Ubah Tema">
+                    <div class="slider"></div>
+                    <div class="switch-btn dark"><i class="fa-solid fa-moon"></i> Dark</div>
+                    <div class="switch-btn light"><i class="fa-solid fa-sun"></i> Light</div>
+                </div>
+
                 <div class="topbar-badge"><i class="fa-solid fa-circle"></i> Internal Data</div>
                 <span class="topbar-time" id="liveTime"></span>
             </div>
@@ -295,33 +349,21 @@
 
         // --- SISTEM TEMA ---
         function toggleTheme() {
-            document.body.classList.toggle('light-theme');
-            const isLight = document.body.classList.contains('light-theme');
+            document.body.classList.toggle('dark-theme');
+            const isDark = document.body.classList.contains('dark-theme');
             
-            // Simpan preferensi pengguna
-            localStorage.setItem('dashboard_theme', isLight ? 'light' : 'dark');
+            // Menyimpan state ke cache browser
+            localStorage.setItem('dashboard_theme', isDark ? 'dark' : 'light');
             
-            // Ubah ikon tombol
-            const btnIcon = document.querySelector('#themeToggle i');
-            if(isLight) {
-                btnIcon.classList.remove('fa-sun');
-                btnIcon.classList.add('fa-moon');
-            } else {
-                btnIcon.classList.remove('fa-moon');
-                btnIcon.classList.add('fa-sun');
-            }
-            
-            // Render ulang grafik agar warna grid/teks menyesuaikan tema
+            // Merender ulang chart agar warna grid dan font terupdate
             if(currentChart) {
                 updateDashboard();
             }
         }
 
-        // Cek preferensi tema saat halaman dimuat
-        if(localStorage.getItem('dashboard_theme') === 'light') {
-            document.body.classList.add('light-theme');
-            document.querySelector('#themeToggle i').classList.remove('fa-sun');
-            document.querySelector('#themeToggle i').classList.add('fa-moon');
+        // Mengecek state di cache saat browser baru dibuka
+        if(localStorage.getItem('dashboard_theme') === 'dark') {
+            document.body.classList.add('dark-theme');
         }
 
         let currentChart = null;
@@ -344,10 +386,8 @@
                         results.data.forEach(row => {
                             if(row.Date) {
                                 let day = parseInt(row.Date.split('-')[0]);
-                                
                                 let eopStr = row.EOP ? row.EOP.replace(/,/g, '') : '';
                                 let eop = parseInt(eopStr);
-                                
                                 let churnStr = row["Predict Churn Sub"] ? row["Predict Churn Sub"].replace(/,/g, '') : '';
                                 let churn = parseInt(churnStr);
                                 
@@ -373,7 +413,6 @@
                 loadCSVFile(4, '2026-04.csv'),
                 loadCSVFile(5, '2026-05.csv')
             ]);
-            
             handleMonthChange();
         }
 
@@ -396,26 +435,19 @@
                 inputLastDate.max = maxDays;
                 inputLastDate.value = 1;
             }
-            
             updateDashboard();
         }
 
         function interpolateData(pointsObj, totalDays) {
             let keys = Object.keys(pointsObj).map(Number).sort((a, b) => a - b);
-            
             let validEOPKeys = [];
             let validChurnKeys = [];
             let lastEOP = -1;
 
             keys.forEach(k => {
                 let pt = pointsObj[k];
-                if (pt.eop !== null && pt.eop !== lastEOP) {
-                    validEOPKeys.push(k);
-                    lastEOP = pt.eop;
-                }
-                if (pt.churn !== null) {
-                    validChurnKeys.push(k);
-                }
+                if (pt.eop !== null && pt.eop !== lastEOP) { validEOPKeys.push(k); lastEOP = pt.eop; }
+                if (pt.churn !== null) { validChurnKeys.push(k); }
             });
 
             let fullData = [];
@@ -423,53 +455,32 @@
                 let eopVal = 0, churnVal = 0;
                 let isEopInt = false, isChurnInt = false;
 
-                if (validEOPKeys.includes(i)) {
-                    eopVal = pointsObj[i].eop;
-                } else {
+                if (validEOPKeys.includes(i)) { eopVal = pointsObj[i].eop; } else {
                     let prevK = validEOPKeys.slice().reverse().find(k => k < i);
                     let nextK = validEOPKeys.find(k => k > i);
                     if (prevK && nextK) {
                         let ratio = (i - prevK) / (nextK - prevK);
                         eopVal = pointsObj[prevK].eop + ratio * (pointsObj[nextK].eop - pointsObj[prevK].eop);
                         isEopInt = true;
-                    } else if (prevK) {
-                        eopVal = pointsObj[prevK].eop;
-                        isEopInt = true;
-                    }
+                    } else if (prevK) { eopVal = pointsObj[prevK].eop; isEopInt = true; }
                 }
 
-                if (validChurnKeys.includes(i)) {
-                    churnVal = pointsObj[i].churn;
-                } else {
+                if (validChurnKeys.includes(i)) { churnVal = pointsObj[i].churn; } else {
                     let prevK = validChurnKeys.slice().reverse().find(k => k < i);
                     let nextK = validChurnKeys.find(k => k > i);
                     if (prevK && nextK) {
                         let ratio = (i - prevK) / (nextK - prevK);
                         churnVal = pointsObj[prevK].churn + ratio * (pointsObj[nextK].churn - pointsObj[prevK].churn);
                         isChurnInt = true;
-                    } else if (prevK) {
-                        churnVal = pointsObj[prevK].churn;
-                        isChurnInt = true;
-                    }
+                    } else if (prevK) { churnVal = pointsObj[prevK].churn; isChurnInt = true; }
                 }
 
                 let type = 'actual';
-                if (!keys.includes(i) || (isEopInt && isChurnInt)) {
-                    type = 'interpolated';
-                } else if (isEopInt) {
-                    type = 'actual_eop_stuck'; 
-                } else if (isChurnInt) {
-                    type = 'actual_churn_stuck';
-                }
+                if (!keys.includes(i) || (isEopInt && isChurnInt)) { type = 'interpolated'; } 
+                else if (isEopInt) { type = 'actual_eop_stuck'; } 
+                else if (isChurnInt) { type = 'actual_churn_stuck'; }
 
-                fullData.push({
-                    day: i,
-                    eop: Math.round(eopVal),
-                    churn: Math.round(churnVal),
-                    type: type,
-                    isEopInt: isEopInt,
-                    isChurnInt: isChurnInt
-                });
+                fullData.push({ day: i, eop: Math.round(eopVal), churn: Math.round(churnVal), type: type, isEopInt: isEopInt, isChurnInt: isChurnInt });
             }
             return fullData;
         }
@@ -485,18 +496,13 @@
             const monthVal = parseInt(document.getElementById('monthFilter').value);
             let monthName = ["", "Januari", "Februari", "Maret", "April", "Mei"][monthVal];
             let totalDays = rawCSVData[monthVal].days;
-            
             let lastDateInput = document.getElementById('lastDate');
             let lastDate = parseInt(lastDateInput.value);
 
-            if (lastDate > totalDays) {
-                lastDate = totalDays;
-                lastDateInput.value = totalDays;
-            }
+            if (lastDate > totalDays) { lastDate = totalDays; lastDateInput.value = totalDays; }
 
             let dailyData = [];
             let filledActuals = interpolateData(rawCSVData[monthVal].points, totalDays);
-            
             let actualDataAtLastDate = filledActuals.find(d => d.day === lastDate) || filledActuals[filledActuals.length-1];
             let currentActualEOP = actualDataAtLastDate.eop;
             let currentActualChurn = actualDataAtLastDate.churn;
@@ -504,13 +510,10 @@
             const avg_eop_growth = 260.05618;
             let targetEOP = currentActualEOP + (avg_eop_growth * (totalDays - lastDate)); 
 
-            let sumRatio = 0;
-            let countRatio = 0;
-
+            let sumRatio = 0, countRatio = 0;
             for (let m = 1; m < monthVal; m++) {
                 let histPts = rawCSVData[m].points;
                 let mDays = rawCSVData[m].days;
-                
                 let availableDays = Object.keys(histPts).map(Number).sort((a,b) => a-b);
                 let closestDay = availableDays.slice().reverse().find(k => k <= lastDate);
                 
@@ -531,14 +534,10 @@
                 } else {
                     let stepsTotal = totalDays - lastDate;
                     let progress = (i - lastDate) / stepsTotal; 
-                    
                     dailyData.push({
-                        day: i,
-                        eop: Math.round(currentActualEOP + ((targetEOP - currentActualEOP) * progress)),
+                        day: i, eop: Math.round(currentActualEOP + ((targetEOP - currentActualEOP) * progress)),
                         churn: Math.round(currentActualChurn + ((targetChurn - currentActualChurn) * progress)),
-                        type: 'projection',
-                        isEopInt: false,
-                        isChurnInt: false
+                        type: 'projection', isEopInt: false, isChurnInt: false
                     });
                 }
             }
@@ -554,7 +553,6 @@
                 document.getElementById('lbl-churn').innerText = "Proyeksi Churn Akhir Bulan";
                 document.getElementById('lbl-rate-current').innerText = `Rate Aktual (Tgl ${lastDate})`;
                 document.getElementById('lbl-rate').innerText = `Rate Proyeksi (Tgl ${totalDays})`;
-
                 document.getElementById('sub-rate-current').innerHTML = `<i class="fa-solid fa-circle-info"></i> Observasi per ${lastDate} ${monthName}`;
                 document.getElementById('sub-rate').innerHTML = `<i class="fa-solid fa-chart-line"></i> Estimasi per ${totalDays} ${monthName}`;
             } else {
@@ -562,7 +560,6 @@
                 document.getElementById('lbl-churn').innerText = "Total Churn Akhir Bulan";
                 document.getElementById('lbl-rate-current').innerText = `Rate Aktual (Tgl ${lastDate})`;
                 document.getElementById('lbl-rate').innerText = "Rate Akhir Bulan";
-
                 document.getElementById('sub-rate-current').innerHTML = `<i class="fa-solid fa-circle-info"></i> Penutupan Data Aktual`;
                 document.getElementById('sub-rate').innerHTML = `<i class="fa-solid fa-check-double"></i> Realisasi Akhir Bulan`;
             }
@@ -584,26 +581,15 @@
             dailyData.forEach(d => {
                 const tr = document.createElement('tr');
                 let pillHTML = '';
-                
-                if (d.type === 'actual') {
-                    pillHTML = `<span class="status-pill actual"><i class="fa-solid fa-circle"></i> Aktual</span>`;
-                } else if (d.type === 'projection') {
-                    pillHTML = `<span class="status-pill projection"><i class="fa-solid fa-circle"></i> Proyeksi</span>`;
-                } else {
-                    pillHTML = `<span class="status-pill interpolated"><i class="fa-solid fa-circle"></i> Interpolasi</span>`;
-                }
+                if (d.type === 'actual') pillHTML = `<span class="status-pill actual"><i class="fa-solid fa-circle"></i> Aktual</span>`;
+                else if (d.type === 'projection') pillHTML = `<span class="status-pill projection"><i class="fa-solid fa-circle"></i> Proyeksi</span>`;
+                else pillHTML = `<span class="status-pill interpolated"><i class="fa-solid fa-circle"></i> Interpolasi</span>`;
 
                 tr.innerHTML = `
                     <td class="td-date">${d.day} ${monthName}</td>
                     <td>${pillHTML}</td>
-                    <td class="td-num" style="text-align:right;">
-                        ${d.eop.toLocaleString('id-ID')}
-                        ${d.isEopInt ? '<span class="badge-intp">Intp</span>' : ''}
-                    </td>
-                    <td class="td-num" style="text-align:right;">
-                        ${d.churn.toLocaleString('id-ID')}
-                        ${d.isChurnInt ? '<span class="badge-intp">Intp</span>' : ''}
-                    </td>
+                    <td class="td-num" style="text-align:right;">${d.eop.toLocaleString('id-ID')} ${d.isEopInt ? '<span class="badge-intp">Intp</span>' : ''}</td>
+                    <td class="td-num" style="text-align:right;">${d.churn.toLocaleString('id-ID')} ${d.isChurnInt ? '<span class="badge-intp">Intp</span>' : ''}</td>
                     <td class="rate-cell ${rateClass(d.rate)}" style="text-align:right;">${d.rate}%</td>
                 `;
                 tableBody.appendChild(tr);
@@ -624,15 +610,15 @@
             let eopActual = data.map((d, i) => i <= lastActualIndex ? d.eop : null);
             let eopProj = data.map((d, i) => i >= lastActualIndex ? d.eop : null);
 
-            // Deteksi apakah sedang dalam mode terang untuk menyesuaikan warna komponen chart
-            const isLight = document.body.classList.contains('light-theme');
-            const gridColor = isLight ? 'rgba(226, 232, 240, 0.8)' : 'rgba(38,45,61,0.5)';
-            const tickColor = isLight ? '#64748b' : '#5a6478';
-            const tooltipBg = isLight ? '#ffffff' : '#1a1f2b';
-            const tooltipTitleColor = isLight ? '#1e293b' : '#e8ecf4';
-            const tooltipBodyColor = isLight ? '#475569' : '#8892a8';
-            const tooltipBorderColor = isLight ? '#cbd5e1' : '#262d3d';
-            const pointBg = isLight ? '#ffffff' : '#0c0f14';
+            // Cek status tema untuk warna grafik dinamis
+            const isDark = document.body.classList.contains('dark-theme');
+            const gridColor = isDark ? 'rgba(38,45,61,0.5)' : 'rgba(226, 232, 240, 0.8)';
+            const tickColor = isDark ? '#5a6478' : '#64748b';
+            const tooltipBg = isDark ? '#1a1f2b' : '#ffffff';
+            const tooltipTitleColor = isDark ? '#e8ecf4' : '#1e293b';
+            const tooltipBodyColor = isDark ? '#8892a8' : '#475569';
+            const tooltipBorderColor = isDark ? '#262d3d' : '#cbd5e1';
+            const pointBg = isDark ? '#0c0f14' : '#ffffff';
 
             currentChart = new Chart(ctx, {
                 type: 'line',
@@ -641,8 +627,8 @@
                     datasets: [
                         { label: 'Aktual: Churn', data: churnActual, borderColor: '#ff5c72', backgroundColor: 'rgba(255, 92, 114, 0.08)', borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, pointBackgroundColor: '#ff5c72', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y', fill: true, tension: 0.35 },
                         { label: 'Proyeksi: Churn', data: churnProj, borderColor: '#ff5c72', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: '#ff5c72', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y', fill: false, tension: 0.35 },
-                        { label: 'Aktual: EOP', data: eopActual, borderColor: '#00d4aa', backgroundColor: 'rgba(0, 212, 170, 0.06)', borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, pointBackgroundColor: '#00d4aa', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y1', fill: true, tension: 0.35 },
-                        { label: 'Proyeksi: EOP', data: eopProj, borderColor: '#00d4aa', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: '#00d4aa', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y1', fill: false, tension: 0.35 }
+                        { label: 'Aktual: EOP', data: eopActual, borderColor: '#00a885', backgroundColor: 'rgba(0, 168, 133, 0.06)', borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5, pointBackgroundColor: '#00a885', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y1', fill: true, tension: 0.35 },
+                        { label: 'Proyeksi: EOP', data: eopProj, borderColor: '#00a885', borderWidth: 2, borderDash: [6, 4], pointRadius: 0, pointHoverRadius: 4, pointBackgroundColor: '#00a885', pointBorderColor: pointBg, pointBorderWidth: 2, yAxisID: 'y1', fill: false, tension: 0.35 }
                     ]
                 },
                 options: {
@@ -651,23 +637,12 @@
                         legend: { display: false }, 
                         tooltip: { 
                             backgroundColor: tooltipBg, titleColor: tooltipTitleColor, bodyColor: tooltipBodyColor, borderColor: tooltipBorderColor, borderWidth: 1, padding: 12, cornerRadius: 8, titleFont: { family: 'Space Grotesk', weight: '600', size: 13 }, bodyFont: { family: 'DM Sans', size: 12 }, displayColors: true, boxWidth: 8, boxHeight: 8, boxPadding: 4, 
-                            
-                            filter: function(tooltipItem) {
-                                if (tooltipItem.dataIndex === lastActualIndex && tooltipItem.dataset.label.includes('Proyeksi')) {
-                                    return false;
-                                }
-                                return true;
-                            },
-                            
+                            filter: function(tooltipItem) { return !(tooltipItem.dataIndex === lastActualIndex && tooltipItem.dataset.label.includes('Proyeksi')); },
                             callbacks: { 
                                 title: (items) => `Tanggal ${items[0].label} ${monthName}`, 
                                 label: function (context) { 
                                     let labelName = context.dataset.label || ''; 
-                                    
-                                    if (context.dataIndex === lastActualIndex && labelName.includes('Aktual')) {
-                                        labelName = labelName.replace('Aktual', 'Terkini');
-                                    }
-                                    
+                                    if (context.dataIndex === lastActualIndex && labelName.includes('Aktual')) labelName = labelName.replace('Aktual', 'Terkini');
                                     if (labelName) labelName += ': '; 
                                     if (context.parsed.y !== null) labelName += new Intl.NumberFormat('id-ID').format(context.parsed.y); 
                                     return labelName; 
@@ -683,7 +658,6 @@
                 }
             });
         }
-
     </script>
 </body>
 </html>
