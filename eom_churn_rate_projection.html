@@ -90,7 +90,7 @@
         .topbar { padding: 18px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-main); position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); transition: background-color 0.3s, border-color 0.3s; }
         .topbar-left h2 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; color: var(--text-primary); }
         .topbar-left p { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
-        .topbar-right { display: flex; align-items: center; gap: 16px; } /* Jarak antar elemen header */
+        .topbar-right { display: flex; align-items: center; gap: 16px; } 
         .topbar-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,212,170,0.15); }
         .topbar-time { font-size: 12px; color: var(--text-muted); }
         
@@ -104,7 +104,7 @@
             position: relative;
             cursor: pointer;
             padding: 4px;
-            width: 170px; /* Lebar keseluruhan tombol */
+            width: 170px;
             height: 38px;
             transition: border-color 0.3s, background-color 0.3s;
         }
@@ -132,24 +132,11 @@
             transition: color 0.35s;
             user-select: none;
         }
-        /* Mode Terang (Default) -> Slider di kanan */
-        .theme-switcher .slider {
-            transform: translateX(100%);
-        }
-        .theme-switcher .switch-btn.light {
-            color: #ffffff; /* Warna teks kontras di atas hijau accent */
-        }
-        /* Mode Gelap -> Slider di kiri */
-        body.dark-theme .theme-switcher .slider {
-            transform: translateX(0);
-        }
-        body.dark-theme .theme-switcher .switch-btn.dark {
-            color: #0c0f14; /* Warna teks kontras di atas hijau accent */
-        }
-        body.dark-theme .theme-switcher .switch-btn.light {
-            color: var(--text-secondary);
-        }
-        /* ========================================================= */
+        .theme-switcher .slider { transform: translateX(100%); }
+        .theme-switcher .switch-btn.light { color: #ffffff; }
+        body.dark-theme .theme-switcher .slider { transform: translateX(0); }
+        body.dark-theme .theme-switcher .switch-btn.dark { color: #0c0f14; }
+        body.dark-theme .theme-switcher .switch-btn.light { color: var(--text-secondary); }
 
         .content { padding: 28px 32px 40px; flex: 1; }
 
@@ -247,7 +234,6 @@
             </div>
             <div class="topbar-right">
                 
-                <!-- SLIDER THEME BARU -->
                 <div class="theme-switcher" onclick="toggleTheme()" title="Ubah Tema">
                     <div class="slider"></div>
                     <div class="switch-btn dark"><i class="fa-solid fa-moon"></i> Dark</div>
@@ -347,21 +333,13 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        // --- SISTEM TEMA ---
         function toggleTheme() {
             document.body.classList.toggle('dark-theme');
             const isDark = document.body.classList.contains('dark-theme');
-            
-            // Menyimpan state ke cache browser
             localStorage.setItem('dashboard_theme', isDark ? 'dark' : 'light');
-            
-            // Merender ulang chart agar warna grid dan font terupdate
-            if(currentChart) {
-                updateDashboard();
-            }
+            if(currentChart) { updateDashboard(); }
         }
 
-        // Mengecek state di cache saat browser baru dibuka
         if(localStorage.getItem('dashboard_theme') === 'dark') {
             document.body.classList.add('dark-theme');
         }
@@ -376,9 +354,10 @@
             5: { days: 31, points: {} }
         };
 
-        function loadCSVFile(month, fileName) {
+        // --- UPDATE PENGAMBILAN DATA DARI GITHUB ---
+        function loadCSVFile(month, csvUrl) {
             return new Promise((resolve) => {
-                Papa.parse(fileName, {
+                Papa.parse(csvUrl, {
                     download: true,
                     header: true,
                     skipEmptyLines: true,
@@ -400,18 +379,26 @@
                             }
                         });
                         resolve();
+                    },
+                    error: function(err) {
+                        console.error("Gagal mengambil data dari GitHub untuk bulan " + month, err);
+                        alert("Gagal mengambil data dari GitHub. Pastikan link CSV benar.");
+                        resolve(); 
                     }
                 });
             });
         }
 
         async function initDashboard() {
+            // Mengubah format link blob menjadi raw URL agar bisa diproses sebagai file CSV murni
+            const baseUrl = 'https://raw.githubusercontent.com/dhy-519/cbn-crm/main/';
+            
             await Promise.all([
-                loadCSVFile(1, '2026-01.csv'),
-                loadCSVFile(2, '2026-02.csv'),
-                loadCSVFile(3, '2026-03.csv'),
-                loadCSVFile(4, '2026-04.csv'),
-                loadCSVFile(5, '2026-05.csv')
+                loadCSVFile(1, baseUrl + '2026-01.csv'),
+                loadCSVFile(2, baseUrl + '2026-02.csv'),
+                loadCSVFile(3, baseUrl + '2026-03.csv'),
+                loadCSVFile(4, baseUrl + '2026-04.csv'),
+                loadCSVFile(5, baseUrl + '2026-05.csv')
             ]);
             handleMonthChange();
         }
@@ -610,7 +597,6 @@
             let eopActual = data.map((d, i) => i <= lastActualIndex ? d.eop : null);
             let eopProj = data.map((d, i) => i >= lastActualIndex ? d.eop : null);
 
-            // Cek status tema untuk warna grafik dinamis
             const isDark = document.body.classList.contains('dark-theme');
             const gridColor = isDark ? 'rgba(38,45,61,0.5)' : 'rgba(226, 232, 240, 0.8)';
             const tickColor = isDark ? '#5a6478' : '#64748b';
