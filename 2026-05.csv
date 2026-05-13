@@ -1,4 +1,4 @@
-Date,Potential Churn,Predict Churn Sub,EOP,Predict Churn Rate
+﻿Date,Potential Churn,Predict Churn Sub,EOP,Predict Churn Rate
 1-May-2026,"17,454","19,345","481,632",4.02%
 2-May-2026,"16,695","18,940","481,632",3.93%
 3-May-2026,"15,439","18,100","481,632",3.76%
@@ -10,7 +10,7 @@ Date,Potential Churn,Predict Churn Sub,EOP,Predict Churn Rate
 9-May-2026,,,"484,857",
 10-May-2026,"11,455","15,765","485,643",3.25%
 11-May-2026,"10,846","15,587","485,643",3.21%
-12-May-2026,,,,
+12-May-2026,"10,305","15,463","486,182",3.18%
 13-May-2026,,,,
 14-May-2026,,,,
 15-May-2026,,,,
