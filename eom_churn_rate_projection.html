@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard EOM Churn Rate Prediction 2026</title>
+    <title>Dashboard EOM Churn Rate Prediction 2026 - v2.0</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,60 +12,32 @@
     <style>
         /* ================= LIGHT MODE (DEFAULT) ================= */
         :root {
-            --bg-root: #eef2f6;
-            --bg-sidebar: #ffffff;
-            --bg-main: #f4f7fb;
-            --bg-card: #ffffff;
-            --bg-card-hover: #f8fafc;
-            --bg-input: #ffffff;
-            --border: #e2e8f0;
-            --border-light: #cbd5e1;
-            --text-primary: #1e293b;
-            --text-secondary: #475569;
-            --text-muted: #64748b;
-            
-            --accent: #00a885;
-            --accent-dim: rgba(0, 168, 133, 0.12);
-            --accent-glow: rgba(0, 168, 133, 0.25);
-            --red: #e0435a;
-            --red-dim: rgba(224, 67, 90, 0.12);
-            --amber: #e09520;
-            --amber-dim: rgba(224, 149, 32, 0.12);
-            --blue: #2b8fd9;
-            --blue-dim: rgba(43, 143, 217, 0.12);
-            --green: #00a885;
-            --green-dim: rgba(0, 168, 133, 0.12);
-            
-            --radius: 10px;
-            --radius-lg: 14px;
+            --bg-root: #eef2f6; --bg-sidebar: #ffffff; --bg-main: #f4f7fb;
+            --bg-card: #ffffff; --bg-card-hover: #f8fafc; --bg-input: #ffffff;
+            --border: #e2e8f0; --border-light: #cbd5e1;
+            --text-primary: #1e293b; --text-secondary: #475569; --text-muted: #64748b;
+            --accent: #00a885; --accent-dim: rgba(0, 168, 133, 0.12); --accent-glow: rgba(0, 168, 133, 0.25);
+            --red: #e0435a; --red-dim: rgba(224, 67, 90, 0.12);
+            --amber: #e09520; --amber-dim: rgba(224, 149, 32, 0.12);
+            --blue: #2b8fd9; --blue-dim: rgba(43, 143, 217, 0.12);
+            --green: #00a885; --green-dim: rgba(0, 168, 133, 0.12);
+            --radius: 10px; --radius-lg: 14px;
             --shadow-card: 0 2px 4px rgba(0,0,0,0.03), 0 8px 16px rgba(0,0,0,0.03);
             --chart-point-bg: #ffffff;
         }
 
         /* ================= DARK MODE ================= */
         body.dark-theme {
-            --bg-root: #0c0f14;
-            --bg-sidebar: #10141b;
-            --bg-main: #141821;
-            --bg-card: #1a1f2b;
-            --bg-card-hover: #1f2535;
-            --bg-input: #1e2430;
-            --border: #262d3d;
-            --border-light: #2a3248;
-            --text-primary: #e8ecf4;
-            --text-secondary: #8892a8;
-            --text-muted: #5a6478;
-            --accent: #00d4aa;
-            --red: #ff5c72;
-            --amber: #ffb347;
-            --blue: #4facfe;
-            --green: #00d4aa;
+            --bg-root: #0c0f14; --bg-sidebar: #10141b; --bg-main: #141821;
+            --bg-card: #1a1f2b; --bg-card-hover: #1f2535; --bg-input: #1e2430;
+            --border: #262d3d; --border-light: #2a3248;
+            --text-primary: #e8ecf4; --text-secondary: #8892a8; --text-muted: #5a6478;
+            --accent: #00d4aa; --red: #ff5c72; --amber: #ffb347; --blue: #4facfe; --green: #00d4aa;
             --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 6px 16px rgba(0,0,0,0.2);
             --chart-point-bg: #0c0f14;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
         body { font-family: 'DM Sans', sans-serif; background: var(--bg-root); color: var(--text-primary); display: flex; min-height: 100vh; overflow-x: hidden; transition: background-color 0.3s, color 0.3s; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -94,44 +66,9 @@
         .topbar-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(0,212,170,0.15); }
         .topbar-time { font-size: 12px; color: var(--text-muted); }
         
-        /* ================= THEME SLIDER SWITCHER ================= */
-        .theme-switcher {
-            display: flex;
-            align-items: center;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: 30px;
-            position: relative;
-            cursor: pointer;
-            padding: 4px;
-            width: 170px;
-            height: 38px;
-            transition: border-color 0.3s, background-color 0.3s;
-        }
-        .theme-switcher .slider {
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: calc(50% - 3px);
-            height: calc(100% - 6px);
-            background: var(--accent);
-            border-radius: 20px;
-            transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1);
-            z-index: 1;
-        }
-        .theme-switcher .switch-btn {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-size: 12.5px;
-            font-weight: 600;
-            z-index: 2;
-            color: var(--text-secondary);
-            transition: color 0.35s;
-            user-select: none;
-        }
+        .theme-switcher { display: flex; align-items: center; background: var(--bg-input); border: 1px solid var(--border); border-radius: 30px; position: relative; cursor: pointer; padding: 4px; width: 170px; height: 38px; transition: border-color 0.3s, background-color 0.3s; }
+        .theme-switcher .slider { position: absolute; top: 3px; left: 3px; width: calc(50% - 3px); height: calc(100% - 6px); background: var(--accent); border-radius: 20px; transition: transform 0.35s cubic-bezier(0.4, 0.0, 0.2, 1); z-index: 1; }
+        .theme-switcher .switch-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12.5px; font-weight: 600; z-index: 2; color: var(--text-secondary); transition: color 0.35s; user-select: none; }
         .theme-switcher .slider { transform: translateX(100%); }
         .theme-switcher .switch-btn.light { color: #ffffff; }
         body.dark-theme .theme-switcher .slider { transform: translateX(0); }
@@ -139,7 +76,6 @@
         body.dark-theme .theme-switcher .switch-btn.light { color: var(--text-secondary); }
 
         .content { padding: 28px 32px 40px; flex: 1; }
-
         .controls-bar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
         .ctrl-group { display: flex; align-items: center; gap: 8px; }
         .ctrl-group label { font-size: 12px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; }
@@ -215,7 +151,7 @@
     <aside class="sidebar">
         <div class="sidebar-brand">
             <div class="logo-icon">CA</div>
-            <div><h1>ChurnAnalytics</h1><span>Enterprise Suite</span></div>
+            <div><h1>ChurnAnalytics</h1><span>Enterprise Suite v2.0</span></div>
         </div>
         <nav class="sidebar-nav">
             <div class="nav-label">Analitik</div>
@@ -233,13 +169,11 @@
                 <p>Periode data aktual CSV &mdash; Januari s/d Mei 2026</p>
             </div>
             <div class="topbar-right">
-                
                 <div class="theme-switcher" onclick="toggleTheme()" title="Ubah Tema">
                     <div class="slider"></div>
                     <div class="switch-btn dark"><i class="fa-solid fa-moon"></i> Dark</div>
                     <div class="switch-btn light"><i class="fa-solid fa-sun"></i> Light</div>
                 </div>
-
                 <div class="topbar-badge"><i class="fa-solid fa-circle"></i> Internal Data</div>
                 <span class="topbar-time" id="liveTime"></span>
             </div>
@@ -337,7 +271,7 @@
             document.body.classList.toggle('dark-theme');
             const isDark = document.body.classList.contains('dark-theme');
             localStorage.setItem('dashboard_theme', isDark ? 'dark' : 'light');
-            if(currentChart) { updateDashboard(); }
+            if(currentChart) updateDashboard();
         }
 
         if(localStorage.getItem('dashboard_theme') === 'dark') {
@@ -345,7 +279,6 @@
         }
 
         let currentChart = null;
-
         let rawCSVData = {
             1: { days: 31, points: {} },
             2: { days: 28, points: {} },
@@ -414,22 +347,16 @@
             
             if (currentKeys.length > 0) {
                 let latestDay = Math.max(...currentKeys);
-                inputLastDate.min = 1;
-                inputLastDate.max = maxDays;
-                inputLastDate.value = latestDay;
+                inputLastDate.min = 1; inputLastDate.max = maxDays; inputLastDate.value = latestDay;
             } else {
-                inputLastDate.min = 1;
-                inputLastDate.max = maxDays;
-                inputLastDate.value = 1;
+                inputLastDate.min = 1; inputLastDate.max = maxDays; inputLastDate.value = 1;
             }
             updateDashboard();
         }
 
         function interpolateData(pointsObj, totalDays) {
             let keys = Object.keys(pointsObj).map(Number).sort((a, b) => a - b);
-            let validEOPKeys = [];
-            let validChurnKeys = [];
-            let lastEOP = -1;
+            let validEOPKeys = []; let validChurnKeys = []; let lastEOP = -1;
 
             keys.forEach(k => {
                 let pt = pointsObj[k];
@@ -494,10 +421,33 @@
             let currentActualEOP = actualDataAtLastDate.eop;
             let currentActualChurn = actualDataAtLastDate.churn;
 
-            const avg_eop_growth = 260.05618;
-            let targetEOP = currentActualEOP + (avg_eop_growth * (totalDays - lastDate)); 
+            // =========================================================================
+            // UPDATE v2.0: 1. DYNAMIC EOP GROWTH CALCULATION (Year-To-Date Average)
+            // =========================================================================
+            let firstEOP = 449800; // Default fallback jika data Jan tidak terbaca
+            let firstDay = 1;
+            if(rawCSVData[1].points && Object.keys(rawCSVData[1].points).length > 0) {
+                let availableJanDays = Object.keys(rawCSVData[1].points).map(Number).sort((a,b)=>a-b);
+                firstDay = availableJanDays[0];
+                firstEOP = rawCSVData[1].points[firstDay].eop || firstEOP;
+            }
+            
+            let totalDaysElapsed = 0;
+            for(let m=1; m<monthVal; m++) {
+                totalDaysElapsed += rawCSVData[m].days;
+            }
+            totalDaysElapsed += lastDate;
+            totalDaysElapsed -= firstDay; 
+            
+            // Hitung rata-rata YTD aktual, bukan lagi angka hardcode 260.05
+            let dynamic_avg_eop_growth = (totalDaysElapsed > 10) ? (currentActualEOP - firstEOP) / totalDaysElapsed : 260;
+            let targetEOP = currentActualEOP + (dynamic_avg_eop_growth * (totalDays - lastDate)); 
 
-            let sumRatio = 0, countRatio = 0;
+            // =========================================================================
+            // UPDATE v2.0: 2. WEIGHTED HISTORICAL RATIO (Pembobotan Bulan Terdekat)
+            // =========================================================================
+            let sumWeightedRatio = 0, totalWeight = 0;
+            
             for (let m = 1; m < monthVal; m++) {
                 let histPts = rawCSVData[m].points;
                 let mDays = rawCSVData[m].days;
@@ -506,13 +456,17 @@
                 
                 if (closestDay && histPts[mDays] && histPts[closestDay].churn > 0) {
                     let mRatio = histPts[mDays].churn / histPts[closestDay].churn;
-                    sumRatio += mRatio;
-                    countRatio++;
+                    
+                    // Semakin baru bulan historisnya, semakin besar bobot pengaruhnya
+                    let weight = m; 
+                    sumWeightedRatio += (mRatio * weight);
+                    totalWeight += weight;
                 }
             }
 
-            let historical_ratio = (countRatio > 0) ? (sumRatio / countRatio) : 0.85; 
+            let historical_ratio = (totalWeight > 0) ? (sumWeightedRatio / totalWeight) : 0.85; 
             let targetChurn = currentActualChurn * historical_ratio;
+            // =========================================================================
 
             for (let i = 1; i <= totalDays; i++) {
                 let d = filledActuals[i - 1];
