@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard EOM Churn Rate Prediction 2026 - v2.0</title>
+    <title>Dashboard EOM Churn Rate Prediction 2026 - v3.1</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -151,7 +151,7 @@
     <aside class="sidebar">
         <div class="sidebar-brand">
             <div class="logo-icon">CA</div>
-            <div><h1>ChurnAnalytics</h1><span>Enterprise Suite v2.0</span></div>
+            <div><h1>ChurnAnalytics</h1><span>Enterprise Suite v3.1</span></div>
         </div>
         <nav class="sidebar-nav">
             <div class="nav-label">Analitik</div>
@@ -166,7 +166,7 @@
         <header class="topbar">
             <div class="topbar-left">
                 <h2>Analitik & Proyeksi Churn</h2>
-                <p>Periode data aktual CSV &mdash; Januari s/d Mei 2026</p>
+                <p>Periode data aktual CSV &mdash; Januari s/d Juni 2026</p>
             </div>
             <div class="topbar-right">
                 <div class="theme-switcher" onclick="toggleTheme()" title="Ubah Tema">
@@ -184,7 +184,8 @@
                 <div class="ctrl-group">
                     <label for="monthFilter"><i class="fa-regular fa-calendar" style="margin-right:4px;"></i> Periode</label>
                     <select id="monthFilter" onchange="handleMonthChange()">
-                        <option value="5" selected>Mei 2026</option>
+                        <option value="6" selected>Juni 2026</option>
+                        <option value="5">Mei 2026</option>
                         <option value="4">April 2026</option>
                         <option value="3">Maret 2026</option>
                         <option value="2">Februari 2026</option>
@@ -284,16 +285,14 @@
             2: { days: 28, points: {} },
             3: { days: 31, points: {} },
             4: { days: 30, points: {} },
-            5: { days: 31, points: {} }
+            5: { days: 31, points: {} },
+            6: { days: 30, points: {} }
         };
 
-        // --- UPDATE PENGAMBILAN DATA DARI GITHUB ---
         function loadCSVFile(month, csvUrl) {
             return new Promise((resolve) => {
                 Papa.parse(csvUrl, {
-                    download: true,
-                    header: true,
-                    skipEmptyLines: true,
+                    download: true, header: true, skipEmptyLines: true,
                     complete: function(results) {
                         results.data.forEach(row => {
                             if(row.Date) {
@@ -314,8 +313,7 @@
                         resolve();
                     },
                     error: function(err) {
-                        console.error("Gagal mengambil data dari GitHub untuk bulan " + month, err);
-                        alert("Gagal mengambil data dari GitHub. Pastikan link CSV benar.");
+                        console.error("Gagal ambil data GitHub bulan " + month, err);
                         resolve(); 
                     }
                 });
@@ -323,15 +321,14 @@
         }
 
         async function initDashboard() {
-            // Mengubah format link blob menjadi raw URL agar bisa diproses sebagai file CSV murni
             const baseUrl = 'https://raw.githubusercontent.com/dhy-519/cbn-crm/main/';
-            
             await Promise.all([
-                loadCSVFile(1, baseUrl + '2026-01.csv'),
+                loadCSVFile(1, baseUrl + '2026-01.csv'), 
                 loadCSVFile(2, baseUrl + '2026-02.csv'),
-                loadCSVFile(3, baseUrl + '2026-03.csv'),
+                loadCSVFile(3, baseUrl + '2026-03.csv'), 
                 loadCSVFile(4, baseUrl + '2026-04.csv'),
-                loadCSVFile(5, baseUrl + '2026-05.csv')
+                loadCSVFile(5, baseUrl + '2026-05.csv'),
+                loadCSVFile(6, baseUrl + '2026-06.csv')
             ]);
             handleMonthChange();
         }
@@ -366,8 +363,7 @@
 
             let fullData = [];
             for (let i = 1; i <= totalDays; i++) {
-                let eopVal = 0, churnVal = 0;
-                let isEopInt = false, isChurnInt = false;
+                let eopVal = 0, churnVal = 0, isEopInt = false, isChurnInt = false;
 
                 if (validEOPKeys.includes(i)) { eopVal = pointsObj[i].eop; } else {
                     let prevK = validEOPKeys.slice().reverse().find(k => k < i);
@@ -408,56 +404,69 @@
 
         function updateDashboard() {
             const monthVal = parseInt(document.getElementById('monthFilter').value);
-            let monthName = ["", "Januari", "Februari", "Maret", "April", "Mei"][monthVal];
+            let monthName = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni"][monthVal];
             let totalDays = rawCSVData[monthVal].days;
             let lastDateInput = document.getElementById('lastDate');
             let lastDate = parseInt(lastDateInput.value);
 
             if (lastDate > totalDays) { lastDate = totalDays; lastDateInput.value = totalDays; }
 
-            let dailyData = [];
             let filledActuals = interpolateData(rawCSVData[monthVal].points, totalDays);
-            let actualDataAtLastDate = filledActuals.find(d => d.day === lastDate) || filledActuals[filledActuals.length-1];
-            let currentActualEOP = actualDataAtLastDate.eop;
-            let currentActualChurn = actualDataAtLastDate.churn;
 
             // =========================================================================
-            // UPDATE v2.0: 1. DYNAMIC EOP GROWTH CALCULATION (Year-To-Date Average)
+            // UPDATE v4.0: PEMISAHAN TITIK AKHIR EOP DAN CHURN SECARA INDEPENDEN
             // =========================================================================
-            let firstEOP = 449800; // Default fallback jika data Jan tidak terbaca
+            let pointsObj = rawCSVData[monthVal].points;
+            let rawKeys = Object.keys(pointsObj).map(Number).sort((a,b)=>a-b);
+            
+            // Cari Hari Aktual Terakhir KHUSUS EOP (Mengabaikan nilai copy-paste lurus)
+            let validEOP = []; let prevEOP = -1;
+            rawKeys.forEach(k => {
+                if (pointsObj[k].eop !== null && pointsObj[k].eop !== prevEOP) {
+                    validEOP.push(k); prevEOP = pointsObj[k].eop;
+                }
+            });
+            let actualLastEOPDay = validEOP.filter(k => k <= lastDate).pop() || 1;
+
+            // Cari Hari Aktual Terakhir KHUSUS Churn
+            let validChurn = [];
+            rawKeys.forEach(k => { if (pointsObj[k].churn !== null) validChurn.push(k); });
+            let actualLastChurnDay = validChurn.filter(k => k <= lastDate).pop() || 1;
+
+            // Gunakan nilai dari titik akhir masing-masing sebagai Base
+            let baseEOP = filledActuals[actualLastEOPDay - 1].eop;
+            let baseChurn = filledActuals[actualLastChurnDay - 1].churn;
+
+            // --- 1. DYNAMIC EOP GROWTH CALCULATION (Menggunakan Base EOP Tgl 22) ---
+            let startMonth = Math.max(1, monthVal - 3); 
+            let firstEOP = baseEOP; 
             let firstDay = 1;
-            if(rawCSVData[1].points && Object.keys(rawCSVData[1].points).length > 0) {
-                let availableJanDays = Object.keys(rawCSVData[1].points).map(Number).sort((a,b)=>a-b);
-                firstDay = availableJanDays[0];
-                firstEOP = rawCSVData[1].points[firstDay].eop || firstEOP;
+            
+            if(rawCSVData[startMonth].points && Object.keys(rawCSVData[startMonth].points).length > 0) {
+                let availableDays = Object.keys(rawCSVData[startMonth].points).filter(k => rawCSVData[startMonth].points[k].eop !== null).map(Number).sort((a,b)=>a-b);
+                if(availableDays.length > 0) {
+                    firstDay = availableDays[0];
+                    firstEOP = rawCSVData[startMonth].points[firstDay].eop || firstEOP;
+                }
             }
             
-            let totalDaysElapsed = 0;
-            for(let m=1; m<monthVal; m++) {
-                totalDaysElapsed += rawCSVData[m].days;
-            }
-            totalDaysElapsed += lastDate;
-            totalDaysElapsed -= firstDay; 
+            let totalEOPDaysElapsed = 0;
+            for(let m = startMonth; m < monthVal; m++) { totalEOPDaysElapsed += rawCSVData[m].days; }
+            totalEOPDaysElapsed += actualLastEOPDay; // Menghitung hanya sampai hari EOP terakhir
+            totalEOPDaysElapsed -= firstDay; 
             
-            // Hitung rata-rata YTD aktual, bukan lagi angka hardcode 260.05
-            let dynamic_avg_eop_growth = (totalDaysElapsed > 10) ? (currentActualEOP - firstEOP) / totalDaysElapsed : 260;
-            let targetEOP = currentActualEOP + (dynamic_avg_eop_growth * (totalDays - lastDate)); 
+            let dynamic_avg_eop_growth = (totalEOPDaysElapsed > 10) ? (baseEOP - firstEOP) / totalEOPDaysElapsed : 260;
 
-            // =========================================================================
-            // UPDATE v2.0: 2. WEIGHTED HISTORICAL RATIO (Pembobotan Bulan Terdekat)
-            // =========================================================================
+            // --- 2. WEIGHTED HISTORICAL RATIO CHURN (Menggunakan Base Churn Tgl 24) ---
             let sumWeightedRatio = 0, totalWeight = 0;
-            
-            for (let m = 1; m < monthVal; m++) {
+            for (let m = startMonth; m < monthVal; m++) {
                 let histPts = rawCSVData[m].points;
                 let mDays = rawCSVData[m].days;
-                let availableDays = Object.keys(histPts).map(Number).sort((a,b) => a-b);
-                let closestDay = availableDays.slice().reverse().find(k => k <= lastDate);
+                let histDays = Object.keys(histPts).map(Number).sort((a,b) => a-b);
+                let closestDay = histDays.slice().reverse().find(k => k <= actualLastChurnDay); 
                 
                 if (closestDay && histPts[mDays] && histPts[closestDay].churn > 0) {
                     let mRatio = histPts[mDays].churn / histPts[closestDay].churn;
-                    
-                    // Semakin baru bulan historisnya, semakin besar bobot pengaruhnya
                     let weight = m; 
                     sumWeightedRatio += (mRatio * weight);
                     totalWeight += weight;
@@ -465,30 +474,59 @@
             }
 
             let historical_ratio = (totalWeight > 0) ? (sumWeightedRatio / totalWeight) : 0.85; 
-            let targetChurn = currentActualChurn * historical_ratio;
-            // =========================================================================
+            let targetChurn = baseChurn * historical_ratio;
 
+            // --- 3. MERAKIT DATA HARIAN DENGAN TIMELINE TERPISAH ---
+            let dailyData = [];
             for (let i = 1; i <= totalDays; i++) {
                 let d = filledActuals[i - 1];
+                let eopVal = d.eop;
+                let churnVal = d.churn;
+                let type = 'projection';
+                let isEopInt = d.isEopInt;
+                let isChurnInt = d.isChurnInt;
+
                 if (i <= lastDate) {
-                    dailyData.push(d); 
+                    type = d.type;
+                    
+                    // Jika melewati hari EOP terakhir (misal i=23, tapi EOP stuck di 22), timpa dengan Proyeksi Tren EOP!
+                    if (i > actualLastEOPDay) {
+                        eopVal = Math.round(baseEOP + (dynamic_avg_eop_growth * (i - actualLastEOPDay)));
+                        isEopInt = true;
+                        if (type === 'actual' || type === 'actual_eop_stuck') type = 'interpolated';
+                    }
+                    
+                    // Jika melewati hari Churn terakhir (Untuk berjaga-jaga), timpa dengan Proyeksi Churn
+                    if (i > actualLastChurnDay) {
+                        let stepsTotal = totalDays - actualLastChurnDay;
+                        let progress = (i - actualLastChurnDay) / stepsTotal;
+                        churnVal = Math.round(baseChurn + ((targetChurn - baseChurn) * progress));
+                        isChurnInt = true;
+                        if (type === 'actual' || type === 'actual_churn_stuck') type = 'interpolated';
+                    }
                 } else {
-                    let stepsTotal = totalDays - lastDate;
-                    let progress = (i - lastDate) / stepsTotal; 
-                    dailyData.push({
-                        day: i, eop: Math.round(currentActualEOP + ((targetEOP - currentActualEOP) * progress)),
-                        churn: Math.round(currentActualChurn + ((targetChurn - currentActualChurn) * progress)),
-                        type: 'projection', isEopInt: false, isChurnInt: false
-                    });
+                    // Masuk area murni Proyeksi EOM (Setelah lastDate)
+                    eopVal = Math.round(baseEOP + (dynamic_avg_eop_growth * (i - actualLastEOPDay)));
+                    
+                    let stepsTotal = totalDays - actualLastChurnDay;
+                    let progress = (i - actualLastChurnDay) / stepsTotal;
+                    churnVal = Math.round(baseChurn + ((targetChurn - baseChurn) * progress));
+                    
+                    isEopInt = false;
+                    isChurnInt = false;
                 }
+
+                dailyData.push({ day: i, eop: eopVal, churn: churnVal, type: type, isEopInt: isEopInt, isChurnInt: isChurnInt });
             }
 
+            // Hitung Rate per hari
             dailyData.forEach(d => { d.rate = ((d.churn / d.eop) * 100).toFixed(2); });
 
             const finalData = dailyData[dailyData.length - 1];
             const firstData = dailyData[0];
             let currentData = dailyData[lastDate - 1];
 
+            // Render Header KPI
             if (lastDate < totalDays) {
                 document.getElementById('lbl-eop').innerText = "Proyeksi EOP Akhir Bulan";
                 document.getElementById('lbl-churn').innerText = "Proyeksi Churn Akhir Bulan";
@@ -515,6 +553,7 @@
             document.getElementById('sub-eop').innerHTML = `<i class="fa-solid fa-arrow-up up"></i> <span class="up">+${eopDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
             document.getElementById('sub-churn').innerHTML = `<i class="fa-solid fa-arrow-down down"></i> <span class="down">${churnDiff.toLocaleString('id-ID')}</span> dari awal bulan`;
 
+            // Render Table
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
             document.getElementById('tableCount').textContent = dailyData.length + ' baris';
