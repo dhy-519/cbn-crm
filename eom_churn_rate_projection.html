@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard EOM Churn Rate Prediction 2026 - v3.1</title>
+    <title>Dashboard EOM Churn Rate Prediction 2026 - v3.2</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -151,14 +151,14 @@
     <aside class="sidebar">
         <div class="sidebar-brand">
             <div class="logo-icon">CA</div>
-            <div><h1>ChurnAnalytics</h1><span>Enterprise Suite v3.1</span></div>
+            <div><h1>ChurnAnalytics</h1><span>Enterprise Suite v3.2</span></div>
         </div>
         <nav class="sidebar-nav">
             <div class="nav-label">Analitik</div>
             <div class="nav-item active"><i class="fa-solid fa-chart-line"></i> EOM Churn Rate Projection</div>
         </nav>
         <div class="sidebar-footer">
-            <i class="fa-solid fa-shield-halved" style="margin-right:4px;"></i> Data internal &middot; Q1-Q2 2026
+            <i class="fa-solid fa-shield-halved" style="margin-right:4px;"></i> Data internal &middot; Jan-Jul 2026
         </div>
     </aside>
 
@@ -166,7 +166,7 @@
         <header class="topbar">
             <div class="topbar-left">
                 <h2>Analitik & Proyeksi Churn</h2>
-                <p>Periode data aktual CSV &mdash; Januari s/d Juni 2026</p>
+                <p>Periode data aktual CSV &mdash; Januari s/d Juli 2026</p>
             </div>
             <div class="topbar-right">
                 <div class="theme-switcher" onclick="toggleTheme()" title="Ubah Tema">
@@ -184,7 +184,8 @@
                 <div class="ctrl-group">
                     <label for="monthFilter"><i class="fa-regular fa-calendar" style="margin-right:4px;"></i> Periode</label>
                     <select id="monthFilter" onchange="handleMonthChange()">
-                        <option value="6" selected>Juni 2026</option>
+                        <option value="7" selected>Juli 2026</option>
+                        <option value="6">Juni 2026</option>
                         <option value="5">Mei 2026</option>
                         <option value="4">April 2026</option>
                         <option value="3">Maret 2026</option>
@@ -286,7 +287,8 @@
             3: { days: 31, points: {} },
             4: { days: 30, points: {} },
             5: { days: 31, points: {} },
-            6: { days: 30, points: {} }
+            6: { days: 30, points: {} },
+            7: { days: 31, points: {} }
         };
 
         function loadCSVFile(month, csvUrl) {
@@ -328,7 +330,8 @@
                 loadCSVFile(3, baseUrl + '2026-03.csv'), 
                 loadCSVFile(4, baseUrl + '2026-04.csv'),
                 loadCSVFile(5, baseUrl + '2026-05.csv'),
-                loadCSVFile(6, baseUrl + '2026-06.csv')
+                loadCSVFile(6, baseUrl + '2026-06.csv'),
+                loadCSVFile(7, baseUrl + '2026-07.csv')
             ]);
             handleMonthChange();
         }
@@ -404,7 +407,7 @@
 
         function updateDashboard() {
             const monthVal = parseInt(document.getElementById('monthFilter').value);
-            let monthName = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni"][monthVal];
+            let monthName = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli"][monthVal];
             let totalDays = rawCSVData[monthVal].days;
             let lastDateInput = document.getElementById('lastDate');
             let lastDate = parseInt(lastDateInput.value);
@@ -437,7 +440,7 @@
             let baseEOP = filledActuals[actualLastEOPDay - 1].eop;
             let baseChurn = filledActuals[actualLastChurnDay - 1].churn;
 
-            // --- 1. DYNAMIC EOP GROWTH CALCULATION (Menggunakan Base EOP Tgl 22) ---
+            // --- 1. DYNAMIC EOP GROWTH CALCULATION (Menggunakan Base EOP) ---
             let startMonth = Math.max(1, monthVal - 3); 
             let firstEOP = baseEOP; 
             let firstDay = 1;
@@ -457,7 +460,7 @@
             
             let dynamic_avg_eop_growth = (totalEOPDaysElapsed > 10) ? (baseEOP - firstEOP) / totalEOPDaysElapsed : 260;
 
-            // --- 2. WEIGHTED HISTORICAL RATIO CHURN (Menggunakan Base Churn Tgl 24) ---
+            // --- 2. WEIGHTED HISTORICAL RATIO CHURN (Menggunakan Base Churn) ---
             let sumWeightedRatio = 0, totalWeight = 0;
             for (let m = startMonth; m < monthVal; m++) {
                 let histPts = rawCSVData[m].points;
